@@ -1,73 +1,110 @@
 <!doctype html>
 <html lang="zh-CN">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-  <meta name="theme-color" content="#221b2e" />
-  <title>日行一善 · 匿名论坛</title>
-  <link rel="stylesheet" href="style.css" />
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#6d5c91">
+  <title>日行一善 · FOUND-DOG.ONLINE</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div class="grain"></div>
-  <div class="app-shell">
-    <header class="browser-frame">
-      <div class="tab-row">
-        <div class="tab"><span class="tab-dot"></span> 日行一善</div>
-        <div class="browser-actions">—　▣　×</div>
-      </div>
-      <div class="address-row"><span>◉</span> WWW.FOUND-DOG.ONLINE <button id="adminToggle" title="管理员入口">⋮</button></div>
-    </header>
+  <div class="crt"></div>
 
-    <header class="mobile-topbar">
-      <span>日行一善</span>
-      <button id="mobileMenuBtn" aria-label="打开菜单">☰</button>
-    </header>
-
-    <div class="site-logo" id="siteLogo" aria-label="日行一善">
-      <small>FOUND DOG ONLINE</small>
-      <span>日行</span><b>一善</b>
-    </div>
-
-    <main class="layout">
-      <aside class="sidebar" id="sidebar">
-        <button class="seal" id="homeSeal" title="返回首页">善</button>
-        <div class="account-state" aria-label="身份切换">
-          <button class="account active" data-account="land">陆</button>
-          <button class="account" data-account="water">水</button>
+  <div class="browser-shell">
+    <header class="browser-chrome">
+      <div class="title-row">
+        <div class="window-title">■ 日行一善 - FOUND-DOG.ONLINE</div>
+        <div class="window-buttons" aria-hidden="true">
+          <span>_</span><span>□</span><span>×</span>
         </div>
-        <button class="side-link" data-page="profile">MY PAGE</button>
-        <button class="side-link mail-link" data-page="mail">信箱 <i id="mailBadge">1</i></button>
-        <button class="board-switch active" data-board="cat">😼<span>猫版</span></button>
-        <button class="board-switch" data-board="dog">🐶<span>狗版</span></button>
-        <button class="board-switch locked" data-board="bird">🐦<span>鸟版</span></button>
-        <button class="side-link" data-page="help">使用说明</button>
-        <div class="coin">善币<br><strong id="coinCount">12500</strong><small>每日登录 +1</small></div>
+      </div>
+
+      <div class="toolbar">
+        <button type="button" onclick="renderHome()">←</button>
+        <button type="button" onclick="renderHome()">⌂</button>
+        <div class="address-bar">
+          <span class="lock">◆</span>
+          <span>http://www.found-dog.online/bbs/</span>
+        </div>
+        <div class="toolbar-led">● ONLINE</div>
+      </div>
+
+      <div class="site-head">
+        <div class="mascot" aria-hidden="true">
+          <span class="ear left"></span>
+          <span class="ear right"></span>
+          <span class="face">・ᴗ・</span>
+        </div>
+        <div>
+          <h1>NIREI FIGHT! <span>日行一善</span></h1>
+          <p>匿名互助掲示板 / Since 2007 / visitor: <b id="visitorCount">042817</b></p>
+        </div>
+        <div class="blink-badge">NEW!</div>
+      </div>
+
+      <div class="ticker">
+        <span>◆ 公告：发帖前请阅读版规　◆ 禁止人肉搜索　◆ 今日善行从回帖开始　◆ 管理员 BLACKHAND 巡回中</span>
+      </div>
+
+      <nav class="main-tabs">
+        <button class="active" onclick="renderHome()">HOME</button>
+        <button>CAT</button>
+        <button>DOG</button>
+        <button>PLAYLIST</button>
+        <button>HISTORY</button>
+        <button>MYPAGE</button>
+      </nav>
+    </header>
+
+    <div class="site-layout">
+      <aside class="sidebar">
+        <section class="side-panel profile-panel">
+          <div class="panel-title">MY STATUS</div>
+          <div class="avatar">善</div>
+          <p>匿名用户</p>
+          <div class="meter-label">善币</div>
+          <div class="coin-box"><span>◆</span> <b id="coinCount">200</b></div>
+        </section>
+
+        <section class="side-panel">
+          <div class="panel-title">BOARD MENU</div>
+          <button onclick="renderHome()">▶ 综合区</button>
+          <button>▷ 猫咪区</button>
+          <button>▷ 狗狗区</button>
+          <button>▷ 失物区</button>
+          <button>▷ 八卦区</button>
+        </section>
+
+        <section class="side-panel counter-panel">
+          <div class="panel-title">ACCESS</div>
+          <div class="digital-counter">042817</div>
+          <small>你是今天第 328 位善人</small>
+        </section>
+
+        <section class="side-panel tiny-links">
+          <div class="panel-title">LINK</div>
+          <a href="#">[ 管理室 ]</a>
+          <a href="#">[ 版规 ]</a>
+          <a href="#">[ 旧日志 ]</a>
+          <a href="#">[ 手机版 ]</a>
+        </section>
       </aside>
 
-      <section class="content" id="content" aria-live="polite"></section>
-    </main>
-
-    <nav class="mobile-nav">
-      <button data-page="home">善<small>首页</small></button>
-      <button data-board="cat">😼<small>猫版</small></button>
-      <button data-board="dog">🐶<small>狗版</small></button>
-      <button data-page="profile">●<small>我的</small></button>
-    </nav>
-  </div>
-
-  <div class="toast" id="toast" role="status"></div>
-
-  <div class="modal" id="genericModal" hidden>
-    <div class="modal-card" role="dialog" aria-modal="true">
-      <button class="modal-close" data-close-modal>×</button>
-      <div id="modalBody"></div>
+      <main class="content" id="appContent" aria-live="polite"></main>
     </div>
+
+    <footer class="footer">
+      <span>Best viewed in 1024×768 / Internet Explorer 7</span>
+      <span>© 2007-2026 FOUND-DOG.ONLINE</span>
+    </footer>
   </div>
 
-  <div class="lightbox" id="lightbox" hidden>
-    <button class="lightbox-close" data-close-lightbox>×</button>
-    <div class="fake-photo" id="lightboxPhoto"></div>
-  </div>
+  <nav class="mobile-nav">
+    <button onclick="renderHome()"><span>⌂</span><small>HOME</small></button>
+    <button><span>♬</span><small>PLAY</small></button>
+    <button><span>▣</span><small>LOG</small></button>
+    <button><span>☺</span><small>ME</small></button>
+  </nav>
 
   <script src="script.js"></script>
 </body>
