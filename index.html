@@ -3,113 +3,70 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <meta name="theme-color" content="#221b2e" />
   <title>日行一善 · 匿名论坛</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
+  <div class="grain"></div>
   <div class="app-shell">
-    <header class="browser-frame" aria-label="浏览器外壳">
+    <header class="browser-frame">
       <div class="tab-row">
-        <div class="tab">😼 日行一善</div>
-        <div class="browser-actions">🌈　—　▣　×</div>
+        <div class="tab"><span class="tab-dot"></span> 日行一善</div>
+        <div class="browser-actions">—　▣　×</div>
       </div>
-      <div class="address-row">◉ WWW.FOUND-DOG.ONLINE</div>
+      <div class="address-row"><span>◉</span> WWW.FOUND-DOG.ONLINE <button id="adminToggle" title="管理员入口">⋮</button></div>
     </header>
 
     <header class="mobile-topbar">
-      <span>18:38</span><span>▮▮▮ 5G ▰</span>
+      <span>日行一善</span>
+      <button id="mobileMenuBtn" aria-label="打开菜单">☰</button>
     </header>
 
-    <div class="site-logo" aria-hidden="true">
-      <span>Nirei</span><b>Fight!</b>
+    <div class="site-logo" id="siteLogo" aria-label="日行一善">
+      <small>FOUND DOG ONLINE</small>
+      <span>日行</span><b>一善</b>
     </div>
 
     <main class="layout">
-      <aside class="sidebar">
+      <aside class="sidebar" id="sidebar">
         <button class="seal" id="homeSeal" title="返回首页">善</button>
-        <div class="account-state">
+        <div class="account-state" aria-label="身份切换">
           <button class="account active" data-account="land">陆</button>
           <button class="account" data-account="water">水</button>
         </div>
-        <button class="side-link" data-page="profile">My page</button>
-        <button class="board-switch active" data-board="cat">😼<span>cat</span></button>
-        <button class="board-switch" data-board="dog">🐶<span>dog</span></button>
-        <div class="coin">善币<br><strong id="coinCount">200</strong></div>
+        <button class="side-link" data-page="profile">MY PAGE</button>
+        <button class="side-link mail-link" data-page="mail">信箱 <i id="mailBadge">1</i></button>
+        <button class="board-switch active" data-board="cat">😼<span>猫版</span></button>
+        <button class="board-switch" data-board="dog">🐶<span>狗版</span></button>
+        <button class="board-switch locked" data-board="bird">🐦<span>鸟版</span></button>
+        <button class="side-link" data-page="help">使用说明</button>
+        <div class="coin">善币<br><strong id="coinCount">12500</strong><small>每日登录 +1</small></div>
       </aside>
 
-      <section class="content" id="content"></section>
+      <section class="content" id="content" aria-live="polite"></section>
     </main>
 
     <nav class="mobile-nav">
-      <button data-page="home">善<small>HOME</small></button>
-      <button data-page="playlist">♫<small>PLAYLIST</small></button>
-      <button data-page="history">▣<small>HISTORY</small></button>
-      <button data-page="profile">●<small>ME</small></button>
+      <button data-page="home">善<small>首页</small></button>
+      <button data-board="cat">😼<small>猫版</small></button>
+      <button data-board="dog">🐶<small>狗版</small></button>
+      <button data-page="profile">●<small>我的</small></button>
     </nav>
   </div>
 
-  <template id="homeTemplate">
-    <section class="home-page">
-      <div class="section-head">
-        <div>
-          <p class="eyebrow">FOUND-DOG.ONLINE</p>
-          <h1><span id="boardIcon">😼</span> <span id="boardName">猫版悬赏</span></h1>
-        </div>
-        <button class="new-post" id="newPostBtn">＋ 发布</button>
-      </div>
-      <div class="topic-list" id="topicList"></div>
-      <button class="more-btn" id="moreBtn">··· MORE ···</button>
-      <div class="topic-list secondary" id="secondaryList"></div>
-    </section>
-  </template>
+  <div class="toast" id="toast" role="status"></div>
 
-  <template id="threadTemplate">
-    <section class="thread-page">
-      <button class="back-btn" id="backBtn">← 返回版面</button>
-      <div class="thread-banner">
-        <span>😼</span><strong>🐠 × <span id="threadBounty">50000</span></strong>
-        <h1 id="threadTitle">风铃眼罩佬真身究竟是？？！！</h1>
-      </div>
-      <div class="thread-meta">
-        <span>[未解决]</span><span>💬 <b id="threadReplies">2352</b></span>
-      </div>
-      <p class="supporters">🙏 9WXy8b、KdT2nG 等 328 位善人さん追加悬赏。</p>
-      <div id="postList"></div>
-      <form class="reply-box" id="replyForm">
-        <label for="replyText">善人さん，留下你的发言</label>
-        <textarea id="replyText" maxlength="300" placeholder="新号注册一小时后才可发言……"></textarea>
-        <div><span id="charCount">0/300</span><button type="submit">匿名发布</button></div>
-      </form>
-    </section>
-  </template>
-
-  <template id="profileTemplate">
-    <section class="profile-page">
-      <div class="profile-card">
-        <div class="avatar">陆</div>
-        <div><p class="eyebrow">SIGNED IN</p><h1>匿名陆党</h1><p>识别码仅在单个串内有效，主页不会公开真实身份。</p></div>
-      </div>
-      <div class="stats">
-        <article><span>善币</span><strong id="profileCoin">200</strong></article>
-        <article><span>发帖记录</span><strong>12</strong></article>
-        <article><span>获赞</span><strong>487</strong></article>
-      </div>
-      <h2>最近记录</h2>
-      <div class="history-card">给“风铃眼罩佬真身究竟是？？！！”点赞</div>
-      <div class="history-card">追加悬赏 10 善币：梅宫老大种植番茄</div>
-      <div class="history-card">收藏：M町最好吃的布丁测评</div>
-    </section>
-  </template>
-
-  <div class="modal" id="postModal" hidden>
-    <div class="modal-card">
-      <button class="modal-close" id="modalClose">×</button>
-      <h2>发布新悬赏</h2>
-      <label>标题<input id="newTitle" maxlength="40" placeholder="想找什么？" /></label>
-      <label>赏金<input id="newBounty" type="number" min="1" max="99999" value="500" /></label>
-      <label>详情<textarea id="newBody" maxlength="200" placeholder="写清楚一点，或者编得像一点。"></textarea></label>
-      <button id="submitPost">发布</button>
+  <div class="modal" id="genericModal" hidden>
+    <div class="modal-card" role="dialog" aria-modal="true">
+      <button class="modal-close" data-close-modal>×</button>
+      <div id="modalBody"></div>
     </div>
+  </div>
+
+  <div class="lightbox" id="lightbox" hidden>
+    <button class="lightbox-close" data-close-lightbox>×</button>
+    <div class="fake-photo" id="lightboxPhoto"></div>
   </div>
 
   <script src="script.js"></script>
