@@ -3,107 +3,53 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-  <meta name="theme-color" content="#6d5c91">
-  <title>日行一善 · FOUND-DOG.ONLINE</title>
+  <meta name="theme-color" content="#241b2f">
+  <title>日行一善 · M-TOWN 黑市论坛</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div class="crt"></div>
-
-  <div class="browser-shell">
-    <header class="browser-chrome">
-      <div class="title-row">
-        <div class="window-title">■ 日行一善 - FOUND-DOG.ONLINE</div>
-        <div class="window-buttons" aria-hidden="true">
-          <span>_</span><span>□</span><span>×</span>
-        </div>
+  <div class="scanlines" aria-hidden="true"></div>
+  <div class="desktop-wrapper">
+    <header class="browser-header">
+      <div class="browser-title">
+        <span class="pixel-mark">◆</span>
+        FOUND-DOG.ONLINE / M-TOWN BBS
       </div>
-
-      <div class="toolbar">
-        <button type="button" onclick="renderHome()">←</button>
-        <button type="button" onclick="renderHome()">⌂</button>
-        <div class="address-bar">
-          <span class="lock">◆</span>
-          <span>http://www.found-dog.online/bbs/</span>
-        </div>
-        <div class="toolbar-led">● ONLINE</div>
-      </div>
-
-      <div class="site-head">
-        <div class="mascot" aria-hidden="true">
-          <span class="ear left"></span>
-          <span class="ear right"></span>
-          <span class="face">・ᴗ・</span>
-        </div>
-        <div>
-          <h1>NIREI FIGHT! <span>日行一善</span></h1>
-          <p>匿名互助掲示板 / Since 2007 / visitor: <b id="visitorCount">042817</b></p>
-        </div>
-        <div class="blink-badge">NEW!</div>
-      </div>
-
-      <div class="ticker">
-        <span>◆ 公告：发帖前请阅读版规　◆ 禁止人肉搜索　◆ 今日善行从回帖开始　◆ 管理员 BLACKHAND 巡回中</span>
-      </div>
-
-      <nav class="main-tabs">
-        <button class="active" onclick="renderHome()">HOME</button>
-        <button>CAT</button>
-        <button>DOG</button>
-        <button>PLAYLIST</button>
-        <button>HISTORY</button>
-        <button>MYPAGE</button>
-      </nav>
+      <div class="window-controls" aria-hidden="true"><span>_</span><span>□</span><span>×</span></div>
+      <div class="address-bar">http://found-dog.online/m-town/bbs/index.html</div>
     </header>
 
-    <div class="site-layout">
-      <aside class="sidebar">
-        <section class="side-panel profile-panel">
-          <div class="panel-title">MY STATUS</div>
-          <div class="avatar">善</div>
-          <p>匿名用户</p>
-          <div class="meter-label">善币</div>
-          <div class="coin-box"><span>◆</span> <b id="coinCount">200</b></div>
-        </section>
-
-        <section class="side-panel">
-          <div class="panel-title">BOARD MENU</div>
-          <button onclick="renderHome()">▶ 综合区</button>
-          <button>▷ 猫咪区</button>
-          <button>▷ 狗狗区</button>
-          <button>▷ 失物区</button>
-          <button>▷ 八卦区</button>
-        </section>
-
-        <section class="side-panel counter-panel">
-          <div class="panel-title">ACCESS</div>
-          <div class="digital-counter">042817</div>
-          <small>你是今天第 328 位善人</small>
-        </section>
-
-        <section class="side-panel tiny-links">
-          <div class="panel-title">LINK</div>
-          <a href="#">[ 管理室 ]</a>
-          <a href="#">[ 版规 ]</a>
-          <a href="#">[ 旧日志 ]</a>
-          <a href="#">[ 手机版 ]</a>
-        </section>
-      </aside>
-
-      <main class="content" id="appContent" aria-live="polite"></main>
+    <div class="mobile-topbar">
+      <span>FOUND-DOG.ONLINE</span>
+      <span id="mobileCoins">🐟 12500</span>
     </div>
 
-    <footer class="footer">
-      <span>Best viewed in 1024×768 / Internet Explorer 7</span>
-      <span>© 2007-2026 FOUND-DOG.ONLINE</span>
-    </footer>
+    <div class="layout">
+      <aside class="sidebar">
+        <div class="hanging-line"></div>
+        <button class="side-item seal" id="homeBtn" title="首页">善</button>
+        <button class="side-item pixel-btn toggle active" id="btnLand">陆党</button>
+        <button class="side-item pixel-btn toggle" id="btnWater">水党</button>
+        <button class="side-item pixel-btn text-link" id="navMail">信箱 <span class="badge" id="mailBadge">1</span></button>
+        <button class="side-item icon-link active" id="navCat">猫版</button>
+        <button class="side-item icon-link" id="navDog">狗版</button>
+        <button class="side-item icon-link locked" title="尚未开放">聚宝楼</button>
+        <div class="side-item coin-display land-only">🐟<br><span id="coinCount">12500</span></div>
+        <button class="side-item pixel-btn admin-switch land-only" id="adminToggle">BLACK<br>HAND</button>
+      </aside>
+
+      <main class="content-shell">
+        <div class="ticker"><span>◆ M町匿名互助论坛 ◆ 严禁人肉 ◆ 违规者由 BLACKHAND 亲自处理 ◆</span></div>
+        <section class="content" id="appContent"></section>
+      </main>
+    </div>
   </div>
 
   <nav class="mobile-nav">
-    <button onclick="renderHome()"><span>⌂</span><small>HOME</small></button>
-    <button><span>♬</span><small>PLAY</small></button>
-    <button><span>▣</span><small>LOG</small></button>
-    <button><span>☺</span><small>ME</small></button>
+    <button class="nav-btn active" id="mobileHome"><span class="icon">⌂</span><span>首页</span></button>
+    <button class="nav-btn" id="mobileCat"><span class="icon">猫</span><span>悬赏</span></button>
+    <button class="nav-btn" id="mobileDog"><span class="icon">犬</span><span>八卦</span></button>
+    <button class="nav-btn land-only" id="mobileMail"><span class="icon">✉</span><span>信箱</span></button>
   </nav>
 
   <script src="script.js"></script>
