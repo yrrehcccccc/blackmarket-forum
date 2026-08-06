@@ -1,177 +1,132 @@
-const app = document.getElementById('appContent');
-const state = { account: 'land', admin: false, coins: 12500, mailRead: false, board: 'cat' };
+'use strict';
+const $ = (s, root=document) => root.querySelector(s);
+const $$ = (s, root=document) => [...root.querySelectorAll(s)];
+const app = $('#appContent');
+const STORAGE='mTownForumV31';
+const saved = JSON.parse(localStorage.getItem(STORAGE)||'{}');
+const state = Object.assign({account:'land',admin:false,coins:12500,mailRead:false,board:'cat',view:'home',thread:null,page:1,sort:'asc',filter:'all',history:[],markedTrips:[],bans:{},deleted:[],likes:{},unlocked:{},userPosts:[],logs:[]}, saved);
+const persist=()=>localStorage.setItem(STORAGE,JSON.stringify(state));
+const esc=s=>String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
+const fmt=n=>Number(n).toLocaleString('zh-CN');
 
-const data = {
-  home: [
-    { title: '找走丢的小鸟QAQ', bounty: 500, status: '未解决', replies: 10 },
-    { title: 'Chiikawa最新扭蛋互换', bounty: 600, status: '未解决', replies: 5 },
-    { title: '风铃眼罩佬真身究竟是？？！！', bounty: 20000, status: '未解决', replies: 3411, hot: true, action: () => renderThread('identity') },
-    { title: '求🍅的番茄1个 转型种植技术分享', bounty: 10000, status: '未解决', replies: 2659, hot: true },
-    { title: '寻找迷路的公猫[已绝育]', bounty: 600, status: '已解决', replies: 15 },
-    { title: '求跑腿代购绿萝咖啡豆！！！', bounty: 300, status: '未解决', replies: 2 }
-  ],
-  dog: [
-    { id: 'live', title: '【🐶直播】黑市第一届全民追踪大赛 冠军：50000善', replies: 312 },
-    { id: 'job', title: '【🐶职场】求兼职推荐', replies: 334 },
-    { id: 'marriage', title: '【🐶婚恋】🥺对象A10/BBA/颜值9小美...', replies: 534 }
-  ],
-  identity: [
-    { f:3210, name:'善人さん', date:'07/25 18:25', id:'7kj2qp', body:'你楼刷到这条了吗<br>评论还有泥潭善善果奔，笑死<br>会有更多人被引流加入战局吗，wakuwaku!<br><br><div class="quote-box"><b>KKKK</b> @fjwwwraa801<br>强塞路人安利的我 be like:</div>', up:1, down:0 },
-    { f:3211, name:'善人さん', date:'07/25 18:26', id:'yy57i9', body:'<div class="quote-box">&gt; 回复 #3210<br>你来晚了<br>已经给罩宝底裤扒没一轮了哈哈哈</div>', up:0, down:0 },
-    { f:3212, name:'善人さん', date:'07/25 18:28', id:'T5ii88', ban:true, admin:true, body:'死眼罩跟你小情儿一起去死吧！！ 🖕🖕🖕', up:2, down:15 }
-  ],
-  live: [
-    {f:41, name:'善人さん', date:'07/26 09:27', body:'那个女生押囚犯一样押着小眼罩填、报、名、表！<br><div class="img-box" onclick="alert(\'图片占位：20250726.JPG\')">【20250726.JPG】</div>'},
-    {f:75, name:'善人さん', date:'07/26 09:40', ban:true, body:'马上打个电话试试，等我好消息🤭'},
-    {f:97, name:'善人さん', date:'07/26 10:12', body:'身高：178m？兴趣：架空幻想生物？梦想：解放奴隶？语言：腹语、唇语、樱语？'},
-    {f:156, name:'善人さん', date:'07/26 11:03', ban:true, body:'我是打电话的那个，被个老男人骂了，听声音就肾虚！😒'},
-    {f:735, name:'善人さん', date:'07/26 18:02', body:'这玩意一本村上春树摊开摆那，一个小时都没翻，盯着外面发呆。<br><div class="img-box" onclick="alert(\'图片占位：发呆.JPG\')">【发呆.JPG】</div>'},
-    {f:748, name:'善人さん', date:'07/26 18:16', body:'大佬请留步！！！你们看，对面那个便利店，这店员是谁啊，黑白头发的！<br><div class="img-box" onclick="alert(\'图片占位：锤.JPG\')">【锤.JPG】</div>'},
-    {f:2737, name:'NONONO', date:'07/27 00:19', trip:'🥥', body:'请收回，苏枋同学和樱同学是正直的朋友关系，15岁没有资质去 LOVE HOTEL，已取证。'},
-    {f:2810, name:'善人さん', date:'07/27 00:42', body:'谢邀，人在 LOVE HOTEL，刚才跟女友打完第7炮。主楼那俩小屁孩就在我们前排！<div class="paywall" data-price="10000">&gt;&gt;&gt;需要[10000善]查看&lt;&lt;&lt;</div>'}
-  ],
-  job: [
-    {f:1, name:'善人さん', date:'07/20 08:00', trip:'2ej7uD', body:'RT，要交房租，想多打几份工'},
-    {f:2, name:'Gemini', date:'07/20 08:03', trip:'mS0jX6', fakeAI:true, body:'楼主不说要求和薪酬，还开识别码，自己又不dd挽尊，你看都没人回呀'},
-    {f:328, name:'善人さん', date:'07/22 12:40', body:'我什么都能做，体力活都行！钱不能说看着给，时薪1000以上。我很抢手哦😼养了五条鱼，没有白莲味。老板离开我会死，还给我士力架😊好吃！'},
-    {f:334, name:'善人さん', date:'07/22 12:49', body:'<div class="quote-box">&gt; 回复 #328</div>心神别上当啊，这人都是现场缝的😅<br>“离开我会死” cr [豪门娇妻帖]<br>“还给我士力架”图穷匕见，鉴定为硬广！'}
-  ],
-  marriage: [
-    {f:1, name:'善人さん', date:'07/18 22:11', trip:'🥺', ip:'219.176.85.122', body:'瑟瑟发抖🥺预感明天会有贵妇甩我支票，让我离开她儿子🥺对象什么都好，唯一不好就是离开我会死🥺'},
-    {f:533, name:'善人さん', date:'07/21 20:33', body:'我都不要1000万，给我10万就好，能付两个月房租😼'},
-    {f:534, name:'善人さん', date:'07/21 20:35', ip:'219.176.85.122', body:'<div class="quote-box">&gt; 回复 #533</div>分手费只要10万吗宝宝😩那你对象还真是个赔钱货🤣🤣🤣'}
-  ]
+const P=(f,name,date,trip,body,extra={})=>({f,name,date,trip,body,...extra});
+const A=(name,caption='点击查看附件')=>`<button class="attachment" data-file="${esc(name)}">▣ ${esc(name)}<small>${esc(caption)}</small></button>`;
+const AU=(name)=>`<button class="attachment audio" data-file="${esc(name)}">▶ ${esc(name)}</button>`;
+const Q=(floor,text='')=>`<div class="quote-box cross-floor" data-floor="${floor}">&gt; 回复 #${floor}${text?`<br>${text}`:''}</div>`;
+const R=(who,amount,note)=>`<div class="reward-card">感谢大善人さん【${who}】打赏【${amount}善】！${note?`<br>备注：${note}`:''}</div>`;
+const W=(price,content)=>`<div class="paywall" data-price="${price}" data-content="${encodeURIComponent(content)}">&gt;&gt;&gt;需要[${price}善]查看&lt;&lt;&lt;<br><small>[以下内容开启防泄密保护]</small></div>`;
+
+const threads={
+ identity:{board:'cat',title:'风铃眼罩佬真身究竟是？？！！',bounty:101399,status:'未解决 · 剩余25天',replies:3292,hot:true,summary:'从500善一路舞到十万善的楼宝。战力党、STK、私生、巨魔与管理员的共同游乐场。',support:'🙏 pL17zW、uJ0wA4等402位善人さん追加悬赏。',posts:[
+P(1,'善人さん','06/21 11:52','5aSm7X','风铃那个戴黑眼罩的<br>总一副很拽的样子😤😤<br>来个善善打探打探眼罩下面到底是什么<br>我出500善！（全部身家，别嫌我抠）<br>自带返图谢谢，或者你有理有据，给我编信了也OK'),
+P(2,'善人さん','06/21 11:55','pL5mS7','谁在乎？本人自炒？'),
+P(3,'善人さん','06/21 12:01','4k55eV','打发叫花子啊，还返图……我干嘛不去隔壁找猫😅'),
+P(4,'善人さん','06/21 12:02','5aSm7X',Q(3)+'你这辈子也就找找猫这样'),
+P(5,'善人さん','06/21 12:03','KdT2nG',Q(4)+'乐，破防了🤡🤡🤡🤡🤡<br>@BLACKHAND 人身攻击啊这😅黑手快来关他一个月'),
+P(6,'善人さん','06/21 12:04','4k55eV',Q(5)+'你有病吧😅干嘛COS我'),
+P(2912,'善人さん','07/20 19:07','8kP2qZ','利益相关，战力榜组评估员。<br>亏我之前一直帮着吹眼罩，今天整一个🤡'),
+P(2913,'善人さん','07/20 19:09','dR6tY1',Q(2912)+'咋啦，老哥，细说'),
+P(2914,'善人さん','07/20 19:17','8kP2qZ',Q(2913)+'对于资料不足的选手，我们评估员田野调查是这样的：<br><br>跟踪目标对象到没人的地方，出其不意偷袭，对方在不知情的时候会拿出“最快了断”的水平，我们根据这个水平放到对应区间……<br><br>就是没测到，才让我觉得他虚！<br><br>我跟着跟着，被风铃那个樱遥拦下了🤬还说再跟就对我不客气，要他多事，我跟的是他吗！<br><br>回头我一寻思，眼罩会不会因为这楼的讨论，怕了，申请了风铃的保护啊？<br><br>玩不起🙄🙄🙄'),
+P(2915,'善人さん','07/20 19:21','uZ5gC3',Q(2914)+'你没补课吗，眼罩是他们那个班的什么副级长，樱遥是级长，可能在一起巡逻。<br>他们风铃人跟那边街区的保安似的，每天还巡逻（乐）自称“防风铃”（太中二了🫣<br>樱遥出了名的多管闲事，你自己估计也像STK，给人误会了，反省一下吧！'),
+P(2916,'善人さん','07/20 19:23','dR6tY1','他西卡尼'),
+P(2917,'善人さん','07/20 19:24','8kP2qZ',Q(2915)+'滚<br>老子185八块腹肌，那小子肯定是怂了<br>以后吹他的我见一次嘲一次'),
+P(2918,'善人さん','07/20 19:25','qL7xR8','那老哥跟樱遥打了吗'),
+P(2919,'善人さん','07/20 19:26','8kP2qZ',Q(2918)+'我打得过吗我💀'),
+P(2920,'善人さん','07/20 19:27','qL7xR8','那看来怂货只有👆👆👆'),
+P(2921,'善人さん','07/20 19:30','KdT2nG','樱遥？'),
+P(2922,'善人さん','07/20 19:30','qL7xR8','哦哦哦，天使降临<br>💫💫💫💫💫💫'),
+P(2923,'善人さん','07/20 19:31','bM4vE5','K佬晚好！'),
+P(2924,'善人さん','07/20 19:32','uZ5gC3',Q(2921)+'使大，樱遥就是上次我俩在楼里聊的风铃厚黑学的那个小太子😊'),
+P(2927,'善人さん','07/20 19:35','KdT2nG',R('KdT2nG',4445,'敬小太子对眼罩佬的纯真友情🥰🥰🥰')),
+P(2934,'善人さん','07/20 19:41','KdT2nG','我认为没那么简单哦，小太子，绝对是个狠角色😜<br><br>哈喽，樱遥同学，你在看这楼吗，看到赏金的数字有没有心动？<br>我看穿你了，假装保护你的眼罩副级长，其实盘算着捷足先登是吧？<br>就喜欢你这种心机BOY。<br>如果你明牌来领悬赏，小K为你准备了额外的60000善，敬背刺的勇气💗💗💗'),
+P(2935,'善人さん','07/20 19:42','KdT2nG',R('KdT2nG',10000,'定金')),
+P(2944,'善人さん','07/20 20:11','uZ5gC3','👨‍🔧感谢使大抛玉引砖，借用一下【背刺】点子，我来继续建设风铃厚黑学！<br><br>罩佬家是一个历史悠久的医学世家，听闻祖上还帮山神治过病啥的，有一点玄学在里面。<br>宅斗这部分先不提，总之很复杂，罩佬在家排行老二（三兄弟），但不受待见，目前是一个从本家被流放的状态。<br><br>关键来了！地狱开局，如果想逆袭夺权，要怎么做呢？必然得做出一个亮眼的成绩。<br>——他抢先“挑中了”小太子！'),
+P(2947,'善人さん','07/20 20:20','uZ5gC3','🙇‍♂️感谢不知名善人私信我重要信息！<br>“是的，当初选级长也是眼罩指名的，班上同学都在场。”<br><br>验证了我的猜想！🏃🏃🏃<br>日后小太子登基，实际上早就被罩佬做空实权，只是一个傀儡！<br>只要拿下风铃，等同于拿到两道的资源、情报、入口……<br>罩佬堂堂回宫，一雪前耻，指日可待！<br>罩佬威武！'),
+P(2951,'善人さん','07/20 20:23','xV6kL4','苏枋君今天看镜头了心情很好嘛买了车站前那家草莓蛋糕🍰草莓布丁🍮草莓芭菲🍨旁边那个谁可能是同学吧叫樱君？用🌸记一下🌸说热死了苏枋君问我给🌸君的小电扇呢🌸拿出来苏枋君夸了他请问夸点是？手里的东西都给苏枋君拿我看懒死他得了不过没敢太懒给苏枋君也吹吹苏枋君心情很好所以看镜头了好吧🌸我原谅你<br>'+A('suo0720.JPG')),
+P(2952,'善人さん','07/20 20:27','pY9sD1','4师来了啊'),P(2953,'善人さん','07/20 20:28','bM4vE5','4师今天拍得跟文春似的怪有氛围感哟哟哟这不是刚才讨论的当事人吗🫨🤭🤣'),
+P(2966,'善人さん','07/20 21:02','qL7xR8','天呢站长活了'),
+P(2970,'善人さん','07/20 21:06','rE3dC9',Q(2966,'qL7xR8（已封禁 3天）')+'我靠给我封了，站长当心便秘拉不出屎哈🤞'),
+P(2971,'善人さん','07/20 21:07','KdT2nG',Q(2970)+'黑手干的吧，他是站长的忠实舔狗，你踩到雷了'),
+P(2972,'善人さん','07/20 21:07','KdT2nG','作证🙋人家上次也被他封过两个号'),
+P(2973,'善人さん','07/20 21:07','KdT2nG','🤞反弹给黑手拉不出屎'),
+P(2977,'BLACKHAND','07/20 21:14','BLACKHAND',Q(2971,'KdT2nG（已封禁 7天）')+Q(2973,'KdT2nG（已封禁 7天）')+'。<br><br>顺便，距离悬赏关闭和锁楼还有31天。',{role:'admin'}),
+P(2978,'善人さん','07/20 21:15','3Gf7jM',Q(2977)+'OK宝宝🥵我祝你操不到喜欢的人🤞',{ban:'31天'}),
+P(2986,'善人さん','07/22 02:12','Kk88kK','孩子们，我带着新靓号回来了！<br>不是吧，今天楼这么凉，都被黑手吓到了？😡'),
+P(2987,'善人さん','07/22 02:17','Kk88kK','KKsama俺们想死你啦😭😭😭<br>通过这件事可以得出，黑手皮下根本不是什么天才美少女酱！<br>'+A('宝宝我祝你操不到喜欢的人.JPG')+'<br>开个玩笑嘛，黑手就跳脚了！这老哥其实是个性焦虑死宅incel吧<br>哈喽小黑，才两点肯定没睡吧，是不是在拿女神的照片施法呀，你那小茶壶嘴捏得住吗你就施🥵🤏🫖'),
+P(2990,'善人さん','07/22 02:29','dR6tY1','我也好奇，明明晚上有新料，都没人提。<br><br>昨天那位老哥说眼罩哥难跟，本人U22跟踪大奖赛全国64强水准，不信邪，以下REPO。<br><br>先说结论。<br>【难跟吗？】技术上来说，不难跟，因为眼罩哥“允许”你跟。<br>【会被发现吗？】当你打这个念头的时候，我打包票，你已经被发现了。<br>'+W(1000,'眼罩哥到底还是个小鬼，如果你在看这贴，哥好心提醒你，收收你的盲目自信吧。<br>我跟了一小会儿，眼罩哥给我信号“我们去别处会会”，但我没咬钩，他急吼吼跑回来了，表情类似这个🤬。')+W(2000,'【战力】五人结伴，小黄暂时不是战力，小粉能不动手就不动手，拖鞋莽夫敏捷型克他。<br>【小太子】腿法了得、柔韧性吓人、爆发力强。<br>【眼罩哥】不虚，主头脑，守株待兔，拿小太子当掩护，还装可怜告状，唬得小太子拿硬币弹我。')),
+P(2993,'善人さん','07/22 02:59','2My83k',Q(2990)+'那我也说个料。眼罩应该意识到被你耍了，很着急回去，就是紧张同伴吧。<br>但是这种情况下，他还是礼貌地收了一个女生的信和饼干。<br>整个楼看下来，感觉眼罩人不错啊'),
+P(2994,'善人さん','07/22 03:00','Kk88kK',Q(2993)+'紧张同伴？我看是紧张小太子吧🥵<br>收饼干？你送的吧，我告儿你，眼罩儿从不吃外面的东西🥵<br>十成十给小太子吃了，不信下次你问问😜'),
+P(2995,'善人さん','07/22 03:01','2My83k',Q(2994)+'K佬上次不还说小太子会背刺眼罩🙄今儿个吹哪门子风嗑起CP来了<br>莫非你在代入小太子梦眼罩🥴'),
+P(2996,'善人さん','07/22 03:02','Kk88kK',Q(2995)+'哥哥只是被绝美爱情感动了你管得着吗<br><pre>✨💖✨💖✨💖✨💖✨💖✨\n🍵🍵🍵🍵🍵🍵🍵🍵🍵🍵🍵\n╔═══*.·:·.☽✧ ✦ ✧☾.·:·.═══╗\n 苏枋隼飞 💗唯爱💗是唯爱💗樱遥\n╚═══.·:·.☽✧ ✦ ✧☾.·:·.*═══╝\n🌸🌸🌸🌸🌸🌸🌸🌸🌸🌸🌸</pre>'),
+P(3000,'善人さん','07/22 03:06','xV6kL4',Q(2998)+'你这屌子再装不敢说是不是老娘全给你揭了你今天手上拿的是不是这把刀你看清楚带着刀去跟踪苏枋君你什么屌心思自己清楚得亏在风铃附近警察不管不然老娘找十个律师送你铁窗泪么么哒🔪🔪🔪<br>'+A('不是血是番茄酱.JPG')),
+P(3001,'🎂','07/22 03:06','🎂','感谢各位善人助力楼宝到达3000楼！<br>恭喜【xV6kL4】善人さん获得3000善礼金！<br>⏮　⏸　⏭　HAPPY BIRTHDAY - BACK NUMBER',{role:'system'}),
+P(3033,'善人さん','07/22 03:28','2My83k','<pre>✨💖✨💖✨💖✨💖✨💖✨\n🍵🍵🍵🍵🍵🍵🍵🍵🍵🍵🍵\n╔═══*.·:·.☽✧ ✦ ✧☾.·:·.═══╗\n 苏枋隼飞 💗唯爱💗是唯爱💗樱遥\n╚═══.·:·.☽✧ ✦ ✧☾.·:·.*═══╝\n🌸🌸🌸🌸🌸🌸🌸🌸🌸🌸🌸</pre>'),
+P(3265,'善人さん','07/25 23:39','8kP2qZ','我今天在绿萝偶遇了小太子，从他跟一个大姐那听来了几条情报！其中还有疑似BT真相😳<br>'+W(500,'①小太子和眼罩佬周六（明天）行程：看电影。不是怂货的明天来比比，看谁能跟到这两位大神。')+W(1000,'②那个大姐骗了人5000円，苦主请有怨报怨。')+W(2000,'③眼罩情报：另一只眼睛可能有块手术留下的疤。')+W(3000,'④绿萝新品不错吃，葡萄特别新鲜。')+W(5000,'⑤小太子挑食，不吃蔬菜。')+W(7000,'⑥电影似乎是晚上。')+W(10000,'⑦小太子和眼罩佬的弱智日常。'+AU('弱智日常.WAV'))),
+P(3266,'善人さん','07/25 23:43','dR6tY1',Q(3265)+'不是，哥们，想钱想疯了吧😅开了第一条，就这？开了第二条，得，善人们除非钱多烫手，不然别往后开了，止损哈'),
+P(3289,'善人さん','07/26 00:30','8kP2qZ',Q(3285)+'OKK，楼开好了。<br><span class="crosslink" data-thread="stk">[周六电影（STK高手进）]</span>')
+]},
+ job:{board:'dog',title:'【职场】求兼职推荐',status:'讨论中',replies:12,summary:'一个不会用回复功能的新人，被披皮Gemini老师手把手支教。',posts:[
+P(1,'善人さん','07/23 19:45','2ej7uD','RT，要交房租，想多打几份工'),
+P(2,'Gemini','07/24 19:45','mS0jX6','楼主不说要求和薪酬，还开识别码，自己又不dd挽尊，你看都没人回呀',{fakeAI:true}),
+P(3,'善人さん','07/24 19:50','9H6cZt','哦哦，这样啊，我什么都能做，'),
+P(4,'Gemini','07/24 19:51','mS0jX6',Q(3)+'……不要说这么危险的话😓<br>楼主是不是不会用【回复】功能<br>你点我的楼号#4，就能回复我啦ʕ ᵔᴥᵔ ʔ',{fakeAI:true}),
+P(5,'善人さん','07/24 20:02','9H6cZt','没打完就发出去了，体力活都行吧，兼职过便利店，满15岁，高中生<br>不是很擅长和人交流……但我会努力！钱看着给就行'),
+P(6,'Gemini','07/24 20:03','mS0jX6',Q(5)+'不能说看着给😂至少得比便利店高吧ʕ•̀ o • ʔ？',{fakeAI:true}),
+P(7,'善人さん','07/24 20:08','9H6cZt',Q(4)+'真的也<br><br>'+Q(6)+'那就1000时薪以上，可以吗？😰'),
+P(8,'Gemini','07/24 20:09','mS0jX6',Q(7)+'学会回复了呢，真聪明😊<br>像家庭餐厅、烤肉店、中餐馆、M记的服务生，楼楼都可以去试试ʕง•ᴥ•ʔง',{fakeAI:true}),
+P(9,'善人さん','07/24 20:14','9H6cZt',Q(8)+'你这个机器人 人还怪好的嘞<br>谢谢……😙'),
+P(10,'Gemini','07/24 20:15','mS0jX6',Q(9)+'不要在黑市用😘😗😙😚这些表情哦🤨<br>会收到奇怪的私信。你看信箱？📬',{fakeAI:true}),
+P(11,'善人さん','07/24 20:19','9H6cZt',Q(10)+'看到了……以后不用了😰'),
+P(12,'Gemini','07/24 20:20','mS0jX6',Q(11)+'好孩子😙楼主加油^^',{fakeAI:true})]},
+ roommate:{board:'dog',title:'【生活】在线求助🙄厚脸皮同学蹭住',status:'热议',replies:121,summary:'楼主认真求助，善人们坚持把它理解成抱怨式秀恩爱。',posts:[
+P(1,'善人さん','07/21 13:49','', '同学有事说要来我家借住几天😅又不说几天<br>住了好长时间，还赖着不走，吃我的用我的，把这当他自己家了？<br>一看那性子就跟我合不来，除了我弟，我跟谁都合不来（本人弟控🥰）<br>……可我太善良，不好意思开口，我弟替我急😡某麻烦鬼能不能自觉一点！<br>善人们怎么看？'),
+P(2,'善人さん','07/21 13:50','','我先来：包子别怕狗惦记。'),P(3,'善人さん','07/21 13:51','','我再来：包子配狗，天长地久。'),P(5,'善人さん','07/21 13:54','',Q(3)+'这话好像不这么说的吧'),P(11,'善人さん','07/21 13:59','','抬头看论坛名-__-|||<br>别发上来气善善们就当你日行一善了'),P(29,'善人さん','07/21 16:34','','吃你的用你的干俺们屁事<br>睡你没？睡的部分倒是可以讲讲🥵'),P(35,'善人さん','07/21 17:24','','不好意思开口=爽死我了😅😅口嫌体正直<br>新型秀恩爱？尊重锁死哈'),P(41,'善人さん','07/23 21:01','','你们有病啊😅我是认真求助！而且我俩都男的，什么💩都磕只会害了你，不如磕我跟我弟'),P(46,'善人さん','07/23 21:14','','我是楼主弟弟，楼主说的都是真的啊，你们为什么不信！😭'),P(62,'善人さん','07/23 23:48','','这是什么😋代了昨天早上刚渴到的xql<br>@2My83k @xV6kL4 嘻嘻同担宝宝一起渴🥵'),P(78,'Gemini','07/24 08:44','','关于“弟弟”同学对在下拙作的锐评，我必须在此澄清：在资讯有限且楼主本人叙述极具误导性的情况下，产生一定艺术加工和角色理解偏差，是在所难免的！',{role:'ai'}),P(80,'Gemini','07/24 08:55','','楼主的发帖行为，具有高达92.7%的概率，属于一种被动攻击性的“抱怨式秀恩爱”。',{role:'ai'}),P(83,'ChatGPT','07/24 09:16','','从楼主语言习惯和情绪弧度看，他的“厚脸皮同学”应该是他极为信赖甚至依赖的重要的人。建议同学搬走，有人100%会回楼发疯，敬请期待。🤲',{role:'ai'}),P(115,'善人さん','07/24 19:09','','LZ好惨，能有个讲人话的吗<br>如 如果你真的很烦恼，就跟同学说清楚吧，你同学应该也不是很坏的家伙，会理解的……我觉得😥'),P(116,'善人さん','07/24 19:10','',Q(115)+'这是楼主还是楼主弟👂'),P(119,'善人さん','07/24 19:13','',Q(116)+'是楼主同学吧😋<br>昨天没嗑到，现在我真有点嗑你俩了，你好心疼他哦🥺'),P(121,'善人さん','07/24 19:16','',Q(119)+'+1<br>我看就是我哥那个同学，厚脸皮劲一样一样的👊<br>白莲味也一样啊啊啊啊啊啊啊啊啊<br>滚！')]},
+ mineral:{board:'dog',title:'【职场】黑市做这行的只有我。',status:'仅注册可见',replies:341,summary:'特殊矿石鉴定师、心神、豪门秘辛与一次精准到可疑的“算命”。',registered:true,posts:[P(1,'善人さん','07/19 03:13','💓','猜猜。'),P(2,'善人さん','07/19 03:16','','卖屁股的？'),P(3,'善人さん','07/19 03:18','','黑市做这个的应该蛮多的www<br>比如@BLACKHAND',{ban:'7天'}),P(17,'善人さん','07/21 03:19','💓','特殊矿石鉴定。<br>除了鉴定矿石品质，评级、估价，还会涉及玄学领域。<br>有的矿石吸收天地灵气日月精华，可能蕴含能量，可能获过神力加持，我们就要读取记忆，与之对话。'),P(85,'善人さん','07/21 21:23','💓','接受质疑。这样，你看看我算得准不准。<br><br>✨① 你的5000円是刚从银行取的新版纸币。<br>✨② 你携带的黄油曲奇，自封袋从亚马逊购入。<br>✨③ 你新入手了一个地元爱豆，所在组合缩写BFR。<br>✨④ 但是，你发现他有频繁匂わせ迹象。<br>✨⑤ 你的小爱豆是个善人。今天收下了你的礼物。<br>✨⑥ 小爱豆和你说的绿萝老板认识。<br>✨⑦ 今晚你会看小说，但是你看不进去。<br>✨⑧ 你觉得你的小爱豆是クソデカ激重单箭头。<br>✨⑨ 你发现自己有恶婆婆潜质。'),P(228,'善人さん','07/24 04:44','💓','说回工作。<br>我们客户大头是有钱人，他们一些是矿石收藏家，在意含金量；另一些是土包子，拿特殊矿石装点门面。<br>来月据说有个大家族要办矿石鉴赏会，我只能说到这。订单激增，每天我都在公司忙到这会儿。<br>哦对了，这楼快到彩蛋楼层了，踩中的宝宝我免费帮你算一下😇'),P(278,'善人さん','07/24 19:16','','我也看见了，就是苏枋家'),P(328,'善人さん','07/24 20:38','','楼主你这么忙，招人吗？😥<br>我什么都能做，体力活都行！兼职过便利店，满15岁，高中生，不是很擅长和人交流，但我会努力！<br>钱不能说看着给，要比便利店高，时薪1000以上。<br>我很抢手哦😼养了五条鱼，没有白莲味。<br>便利店有班都优先给我排，同事专门把厕所留给我扫✌️😁<br>最近在做保镖，老板离开我会死，特别特别需要我🥺<br>还给我士力架😊好吃！'),P(329,'🎊','07/24 20:38','🎊','恭喜【#328】善人さん踩中彩蛋，获得328善！',{role:'system'}),P(334,'善人さん','07/24 20:45','',Q(328)+'装的还是玩梗啊😅<br>心神别上当啊，这人都是现场缝的<br>“我什么都能做”cr [求兼职推荐]<br>“离开我会死”cr [婚恋楼]<br>“还给我士力架”鉴定为士力架硬广😅'),P(337,'善人さん','07/24 20:48','💓',Q(328)+'看私信')]},
+ marriage:{board:'dog',title:'【婚恋】🥺对象A10/BBA/颜值9小美，本人A0/11路/颜值9小帅，我俩能成吗👉👈',status:'热帖',replies:534,summary:'一位“颜值9小帅”的豪门娇妻幻想，以及管理员眼中的IP轨迹。',posts:[P(1,'善人さん','07/22 21:51','🥺','瑟瑟发抖🥺预感明天就会有个贵妇甩我支票，让我离开她儿子🥺<br>后天就会有未婚夫转学，学道明寺霸凌我说我配不上，然后联合花泽类一起对我强制爱🥺<br>对象什么都好，唯一不好就是离开我会死🥺<br>唉🥺如果未来婆婆给我1000万，我就答应🥰',{ip:'219.176.85.122'}),P(32,'善人さん','07/23 03:11','','🥺真的，除了我同事，现生没见过比我更帅的男孩子了<br>对象只美，大家闺秀那挂，经常被本人帅成花痴（罪孽呀🥺）<br>其实我自卑，不敢带对象见同事👉👈嗯嗯怕对象被迷跑……',{ip:'219.176.85.122'}),P(533,'善人さん','07/24 20:45','','我都不要1000万，给我10万就好，能付两个月房租😼'),P(534,'善人さん','07/24 20:46','',Q(533)+'分手费只要10万吗宝宝😩<br>那你对象还真是个赔钱货🤣🤣🤣',{ip:'219.176.85.122'})]},
+ tech:{board:'dog',title:'【技术】有没有佬来讨论一下这些图的拍摄设备',status:'讨论中',replies:22,summary:'从蟑螂视角聊到微型摄像头，又不慎牵出🐦版。',posts:[P(1,'善人さん','07/26 01:11','','起因，上周女七爆了美波跟赘婿的恋情，有张狗仔图<br>'+A('路边一条.JPG')+'<br>我今天翻相册存的图，发现这几张角度更刁钻啊，狗都拍不了吧！<br>'+A('suo0711.JPG')+A('suo0712.JPG')+A('suo0715.JPG')+A('suo0720.JPG')+A('不是血是番茄酱.JPG')+R('#2',99,'恩人')),P(4,'善人さん','07/26 01:19','','我觉得分别像水晶球视角、蟑螂视角、麻雀视角、老鼠视角、苍蝇视角？<br>😨蟑螂视角那张是不是还有我们大蠊的单马尾，挡镜头了'),P(14,'善人さん','07/26 01:40','','🐦版有个人求购100个微型摄像头，都是这款<br>型号PRO-MINOR05<br>感兴趣的自己买个试试呗'),P(17,'善人さん','07/26 01:46','','听说氪条到一万才能进<br>好像可以交易，有一些黑科技和地下情报流通'),P(19,'善人さん','07/26 01:49','','楼主偷人家图当心报应噢我在聚宝楼看到这楼了明天楼主眼一睁黑手就会赏你七天小黑屋好自为之吧你🤢'),P(20,'善人さん','07/26 01:52','',Q(19)+'4师还是那么好认啊，晚上好！☺️<br>虽然现在知道您动用了一些技术手段，但不影响您是我心目中眼罩哥的头号STK'),P(22,'善人さん','07/26 01:54','',Q(21)+'就一小时前啊，你可以看这两个帖子<br><span class="crosslink" data-thread="identity">[风铃眼罩佬真身究竟是？？！！]</span><br><span class="crosslink" data-thread="stk">[周六电影（STK高手进）]</span>')]},
+ stk:{board:'dog',title:'【征集】周六电影（STK高手进）',status:'楼主已封禁',replies:185,summary:'一场不怎么合法也不怎么专业的跟踪比赛招募，最终被更大的直播楼接管。',posts:[P(1,'善人さん','07/26 00:29','','利益相关，战力榜组评估员。<br>诚邀各位STK善、八卦善、图一乐的路人善一同加入😉<br>冠军我将打赏10000善！'),P(114,'善人さん','07/26 00:42','','有个问题，不是我找茬哈🤨楼主是怎么能拿定，这是一场比赛的？'),P(119,'善人さん','07/26 00:43','',Q(114)+'据我的了解，眼罩小哥是绝对、绝对、绝对不会想我们打扰他跟樱遥同学一起看电影的，而且他绝对会选一个人少的场次😇'),P(130,'善人さん','07/26 00:53','',Q(127)+'🤭🤭哦哦，原来是抓小情侣啊，本人本职就是高校教导主任<br>冠军一定是我，等我在影院拍点刺激的照片给大家！'),P(138,'善人さん','07/26 00:59','','附近影院有这几家<br>'+A('影院.JPG')+'<br>我让我的技术帝朋友盯着购票系统了'),P(141,'善人さん','07/26 01:06','','樱遥正好跟我在一个兼职群里<br>我拿到了他们便利店这周的排班，明天樱遥有一个晚班17:00-22:00'),P(150,'善人さん','07/26 01:17','',Q(145)+'😜那咋，K腿毛喊黑手封我啊',{ban:'7天'}),P(185,'善人さん','07/26 01:53','','既然楼主死了，我来坐庄吧。<br><span class="crosslink" data-thread="live">[黑市第一届全民追踪大赛 冠军：50000善]</span>')]},
+ live:{board:'dog',title:'【直播】黑市第一届全民追踪大赛 冠军：50000善（已结束）',status:'已结束',replies:2831,hot:true,summary:'从早九点直播到第二天早上。没有人真正跟到电影院，但所有人都认为自己赢了。',posts:[P(1,'善人さん','07/26 01:52','🚓','前情：<br><span class="crosslink" data-thread="identity">[风铃眼罩佬真身究竟是？？！！]</span><br><span class="crosslink" data-thread="stk">[周六电影（STK高手进）]</span><br><br>黑市第一届非官方全民追踪大赛，欢迎来玩！<br>我氪金了，有楼主权限，能控楼，危险言论会删并拉黑踢出。<br>奖金50000善✌️😘✌️<br>'+A('樱遥Profile.JPG')+A('苏枋隼飞Profile.JPG')+'<br>电影院出没时间段08:00~17:00，22:00~0:00；附近10家电影院购票系统已监控；苏枋倾向于人少的场次；截止07/27 0:00。'),P(5,'MASTER','07/26 02:01','MASTER','🤯楼主有备而来啊，还做了这么精美的档案图，抱走。<br>这次我睁一只眼闭一只眼，希望你控好楼，参与者也尽量不要给本人带去麻烦。<br>这俩都还是未成年，闹出什么事就不好办了，我也会全程跟楼。',{role:'master'}),P(19,'善人さん','07/26 09:12','','速速速速报——！！！<br>游乐园前的星巴克，惊现眼罩哥——<br>但是另一位不是樱遥，是一个女生😱苏枋搞什么？<br>女生看起来是年上，女大，美女，两个人相谈甚欢'),P(41,'善人さん','07/26 09:27','','你楼瞎激动，笑死我了🤣😂<br>那个女生押囚犯一样押着小眼罩填、报、名、表！<br>'+A('20250726.JPG')+R('#1',999,'可惜，刚嗑上')),P(58,'善人さん','07/26 09:32','','用PS复原了一下报名表透视，这样方便看<br>'+A('报名表.JPG')+R('#1',299,'感恩')),P(75,'善人さん','07/26 09:35','',Q(63)+'提醒我了，马上打个电话试试，等我好消息🤭',{ban:'7天'}),P(97,'善人さん','07/26 09:38','',Q(58)+'不是，眼罩根本就是乱答啊-____-|||<br>身高：178m？？兴趣：架空幻想生物？？梦想：解放奴隶？？语言：腹语、唇语、樱语？？'),P(115,'善人さん','07/26 09:43','','我是41L，笑死我了打起来了🤣🤣<br>女生买星冰乐去了，一个红帽子的男的找小眼罩说话，说附近有很多假星探，然后下一句话就是“像我们这种正规星探……”😅'),P(156,'善人さん','07/26 09:57','','我靠，我是打电话的那个善善😰<br>怎么是个老男人接的电话，劈头盖脸给我骂一顿，吓死<br>听声音就肾虚！😒',{ban:'7天'}),P(651,'善人さん','07/26 14:54','','😳眼罩打算在咖啡店坐多久，我来半个小时了看他动都没动<br>图挺美的分享给大家<br>'+A('帅哥撩发.jpg')+R('#1',999,'🤤哥好美')),P(735,'善人さん','07/26 15:30','','散了吧大家，我要撤了<br>这玩意一本村上春树摊开摆那，一个小时都没翻，盯着外面发呆<br>'+A('发呆.JPG')+R('#1',999,'后脑勺好会长啊，圆圆的')),P(748,'善人さん','07/26 15:44','',Q(735)+'大佬请留步！！！wait！！！<br>你们看，对面那个便利店，我靠，这店员是谁啊，黑白头发的！<br>'+A('锤.JPG')),P(769,'善人さん','07/26 15:49','','我就说……铁暗恋……🤤<br>一结束就直奔便利店对面盯老婆🤤🤤🤤'),P(806,'善人さん','07/26 16:02','','罩宝看了手机，不知道为什么脸色突然变得很凝重<br>不会和老婆的约会要泡汤了吧🔪🔪🔪'),P(1017,'善人さん','07/26 19:15','','小苏哥哥就在一咖啡店的注视下，帅气地推开门走了出去！<br>'+A('推门.png')),P(1187,'善人さん','07/26 19:47','','总结一下苏枋君的路线：<br>① Pâtisserie Lumière<br>② 長崎本家「匠」<br>③ 京菓子司「一瞬」<br>④ 星巴克<br>⑤ Atelier Saisonnier<br>⑥ 茶庵「木与果」<br>⑦ 现烤卡仕达专门店「Pâtissier」<br>⑧ 甘味処「一丸」'+R('#1',3333,'老哥半小时跑八家店，飞毛腿啊👍')),P(1201,'善人さん','07/26 19:52','',Q(1187)+'他真的我真的去死吧我靠卧槽大包小包的不会都是买给樱遥的吧😲💩💩<br>'+A('左手一堆右手一堆怀里还捧了一堆.JPG')),P(1222,'善人さん','07/26 19:55','',Q(1187)+'来了！到了我的领域！🤔<br>①草莓蛋糕约2200円/切。②金箔五三烧蜂蜜蛋糕约3500円。③顶级生菓子礼盒约4000円。④星巴克约700円。⑤花店人均7000円。⑥饮品600円。⑦蛋挞礼盒2800円。⑧三色团子1500円。'+R('#1',6666,'大师，太牛了，我跪了！')),P(1299,'善人さん','07/26 20:00','','喜报————<br>苏神已抵达便利店，门开了！进去了！<br>'+A('震惊猫猫.JPG')),P(2734,'善人さん','07/27 08:41','',Q(2727)+'🙋我来总结：一句话省流，没有冠军。<br>小队B被小太子用一盒蛋挞和一堆牛奶收买，全军覆没。小队A无一人成功跟到电影院。线索在电影院断了。'),P(2737,'NONONO','07/27 08:45','🥥',Q(2734)+'请你收回最后一句话，苏枋同学和樱同学是正直的朋友关系，两个高中生，15岁，是不会、没有资质去LOVE HOTEL这样的【廉价情色场所】进行开房间活动，也没有举办你脑内的行为，不要造谣，已取证，谢谢😄',{custom:true}),P(2751,'MASTER','07/27 09:00','MASTER','那楼主，现在怎么定输赢？再侃下去没什么意义，该锁楼了。',{role:'master'}),P(2754,'善人さん','07/27 09:05','🚓','这样，我改一下标题🙌<br>请大家交作业，截止到10点。谁给出最晚目击时间点的照片，谁就是赢家。'),P(2810,'善人さん','07/27 09:54','','谢邀，人在LOVE HOTEL，刚跟女友打完第7炮😝爽啊<br>我俩应该是最后目击证人了，主楼那俩小屁孩，就坐在我们前前排！<br>预览：'+A('高清色块糊图.JPG')+'<br>描述：简直就是情侣！旁若无人激情四射，热吻，互摸，伸舌头，路人看了直皱眉，鬼都无法将我们分开！<br>'+W(10000,'【热吻实锤.JPG】<br><br>解锁后才看清：前景是一男一女在镜头前热吻；更前两排，苏枋与樱遥正襟危坐，中间隔着爆米花和可乐。描述句句属实，只是主语从来没说是谁。')+R('#1',50000,'冠军就是你🎊'))]},
+ new1:{board:'cat',title:'求梅宫老大亲手种植的番茄，预算可谈',bounty:10000,status:'已转狗版',replies:266,summary:'悬赏楼后期转职为番茄种植技术分享，被管理员搬家。',posts:[P(1,'善人さん','07/18 10:11','TomAto','重金求风铃梅宫老大亲手种植的番茄一个。不要代购，不要二手转卖，要能证明出处。'),P(88,'善人さん','07/19 18:20','TomAto','买不到了，自己种。有没有善人会打侧芽？'),P(201,'善人さん','07/23 09:03','','我靠楼主这苗长得真好，求土配方'),P(266,'BLACKHAND','07/25 12:00','BLACKHAND','本楼已偏离悬赏主题，移动至狗版【种植】。',{role:'admin'})]},
+ new2:{board:'dog',title:'【美食】绿萝新品葡萄全家福圣代，适合几个人吃？',status:'新帖',replies:47,summary:'一个人点巨大号圣代到底算不算求救信号。',posts:[P(1,'善人さん','07/27 12:18','grape99','如题，看图比脸大，一个人吃会不会被店员记住？'),P(2,'善人さん','07/27 12:20','','会。店员还会把你编进都市传说。'),P(17,'善人さん','07/27 13:05','','别担心，店里昨天有个160细狗被圣代完全挡住，乍看座位没人。'),P(47,'善人さん','07/27 17:33','','本人挑战成功，胃里现在住了一个葡萄园，日行一善完成。')]},
+ new3:{board:'dog',title:'【战力】国崩一战后风铃榜单重排讨论楼',status:'高楼',replies:981,summary:'“被低估”“未来可期”“秒了”三派互相点赞的小型战争。',posts:[P(1,'善人さん','07/23 08:10','ranker','规则：只谈公开战绩，禁止拿私生活当战力加成。'),P(44,'善人さん','07/23 09:01','','樱遥被低估。'),P(45,'善人さん','07/23 09:01','','未来可期。'),P(46,'善人さん','07/23 09:02','','秒了。'),P(981,'善人さん','07/27 20:13','','为什么“被低估”这条有三个完全相同的账号连续点赞记录，黑手查一下。')]},
+ new4:{board:'dog',title:'【店铺测评】M町宝藏小店避雷/安利集中楼',status:'常驻',replies:455,summary:'从蛋挞到紫砂壶，最后总会歪到店主感情史。',posts:[P(1,'善人さん','07/10 11:00','shopper','格式：店名/价位/推荐菜/是否值得排队。禁止纯广告。'),P(72,'善人さん','07/15 18:03','','茶庵「木与果」：600円，柑橘冷泡，店员话少，适合社恐。'),P(189,'善人さん','07/21 09:42','','绿萝：老板会算卦，消费就送，准不准另说，蛋包饭好吃。'),P(455,'BLACKHAND','07/27 22:00','BLACKHAND','置顶续期30天。再讨论老板对象统一移步婚恋版。',{role:'admin'})]}
 };
 
-function renderHome(board = state.board) {
-  state.board = board;
-  setActiveNav(board);
-  const items = board === 'dog'
-    ? data.dog.map(t => ({ title:t.title, bounty:50000, status:'围观中', replies:t.replies, hot:t.id==='live', action:() => renderThread(t.id) }))
-    : data.home;
+const boardLists={cat:['identity','new1'],dog:['live','job','roommate','mineral','marriage','tech','stk','new2','new3','new4']};
+const filler=['楼主呢，别装死','已阅，善善我先笑为敬','有一说一，这楼比隔壁文明','@BLACKHAND 宝宝看看他','RT是什么意思来着','我先叠甲：不是粉也不是黑','蹲个后续，没后续楼主今晚失眠','这也能吵起来，黑市还是人才多','别歪楼，虽然我也想听','善币+1，功德-100'];
+function expandedPosts(thread){const base=[...thread.posts,...state.userPosts.filter(x=>x.thread===state.thread)];if(base.length<25){let used=new Set(base.map(x=>x.f)),max=Math.max(thread.replies||0,...base.map(x=>x.f));for(let i=0;i<Math.min(18,Math.max(0,Math.floor((thread.replies-base.length)/80)));i++){let f=Math.max(1,Math.floor((i+1)*max/(Math.min(18,Math.max(1,Math.floor((thread.replies-base.length)/80)))+1)));while(used.has(f))f++;used.add(f);base.push(P(f,'善人さん',`07/${String(21+(i%7)).padStart(2,'0')} ${String(10+i%12).padStart(2,'0')}:${String((i*7)%60).padStart(2,'0')}`,'',filler[i%filler.length],{synthetic:true}));}}return base.sort((a,b)=>a.f-b.f)}
+function navPush(view,thread=null){if(state.view!==view||state.thread!==thread)state.history.push({view:state.view,thread:state.thread,board:state.board,page:state.page});state.view=view;state.thread=thread;state.page=1;persist()}
+function setAddress(path){$('#addressBar').textContent=`http://found-dog.online/m-town/bbs/${path}`}
+function toast(msg){const el=document.createElement('div');el.className='toast';el.textContent=msg;$('#toastStack').append(el);setTimeout(()=>el.remove(),2600)}
+function modal(title,html){$('#modalTitle').textContent=title;$('#modalBody').innerHTML=html;$('#modalBackdrop').hidden=false}
+function closeModal(){$('#modalBackdrop').hidden=true}
+function activeNav(key){$$('.icon-link,.nav-btn,.text-link').forEach(x=>x.classList.remove('active'));const map={cat:['#navCat','#mobileCat'],dog:['#navDog','#mobileDog'],home:['#mobileHome'],search:['#navSearch','#mobileSearch'],mail:['#navMail'],profile:['#navProfile']};(map[key]||[]).forEach(s=>$(s)?.classList.add('active'))}
+function updateUI(){document.body.className=`${state.account==='water'?'water-mode':''} ${state.admin?'admin-mode':''}`;$('#btnLand').classList.toggle('active',state.account==='land');$('#btnWater').classList.toggle('active',state.account==='water');$('#adminToggle').classList.toggle('active',state.admin);$('#coinCount').textContent=fmt(state.coins);$('#mobileCoins').textContent=`🐟 ${fmt(state.coins)}`;$('#mailBadge').style.display=state.mailRead?'none':'inline-block';$('#navBird').classList.toggle('locked',state.coins<10000);persist()}
+function renderHome(board=state.board){state.view='home';state.board=board;state.thread=null;activeNav(board);setAddress(`${board}/index.html`);const ids=boardLists[board];app.innerHTML=`<div class="home-head"><h1>${board==='cat'?'😼 猫版 · 有偿互助与悬赏':'🐶 狗版 · 八卦吹水一条龙'}</h1><p>${state.account==='land'?'当前身份：陆党（注册用户）':'当前身份：水党（游客）'} · 今日在线 328 · BLACKHAND ${state.admin?'已登录':'巡逻中'}</p></div><div class="dashboard"><div class="stat-card"><span>今日新帖</span><b>23</b></div><div class="stat-card"><span>新增回复</span><b>4,198</b></div><div class="stat-card"><span>流通善币</span><b>128,994</b></div><div class="stat-card"><span>正在封禁</span><b>${Object.keys(state.bans).length+7}</b></div></div><div class="board-tabs"><button class="chip ${board==='cat'?'active':''}" data-board="cat">😼 猫版</button><button class="chip ${board==='dog'?'active':''}" data-board="dog">🐶 狗版</button><button class="chip" data-special="hot">🔥 热门</button><button class="chip" data-special="latest">🕒 最新</button></div><span class="section-label">LATEST THREADS / ${board.toUpperCase()}</span><div id="threadList"></div>`;const list=$('#threadList');ids.forEach(id=>list.append(threadCard(id)));$$('[data-board]').forEach(b=>b.onclick=()=>renderHome(b.dataset.board));$('[data-special="hot"]').onclick=()=>renderThreadIndex('hot');$('[data-special="latest"]').onclick=()=>renderThreadIndex('latest')}
+function threadCard(id){const t=threads[id],el=document.createElement('article');el.className=`thread-card ${t.hot?'hot-border':''}`;el.innerHTML=`${t.hot?'<span class="hot-tag">HOT♥</span>':''}<span class="bounty-icon">${t.board==='cat'?'😼 '+(t.bounty?`🐟×${fmt(t.bounty)}`:'悬赏'): '🐶'}</span><div class="thread-title"><span class="board-tag">${t.board==='cat'?'CAT':'DOG'}</span> ${t.title}</div><div class="thread-meta">[${t.status}] 💬 ${fmt(t.replies)}</div><div class="thread-preview">${t.summary||''}</div>`;el.onclick=()=>openThread(id);return el}
+function renderThreadIndex(mode){activeNav('home');setAddress(`search/${mode}.html`);let ids=Object.keys(threads);if(mode==='hot')ids=ids.sort((a,b)=>threads[b].replies-threads[a].replies).slice(0,10);else ids=ids.reverse().slice(0,10);app.innerHTML=`<div class="home-head"><h1>${mode==='hot'?'🔥 全站热门':'🕒 最新主题'}</h1><p>来自猫版与狗版的混合列表</p></div><div id="threadList"></div>`;ids.forEach(id=>$('#threadList').append(threadCard(id)))}
+function openThread(id,floor=null){const t=threads[id];if(!t)return;if(t.registered&&state.account==='water'){modal('权限不足','<div class="system-msg">&gt;&gt;&gt;您所在的[游客组]没有查看权限&lt;&lt;&lt;</div><p>请切换到陆党后再访问。</p>');return}navPush('thread',id);state.board=t.board;renderThread(id,floor)}
+function renderThread(id,floor=null){const t=threads[id];state.view='thread';state.thread=id;activeNav(t.board);setAddress(`${t.board}/thread/${id}.html`);let posts=expandedPosts(t);if(state.sort==='desc')posts=posts.reverse();if(state.filter==='image')posts=posts.filter(p=>/attachment/.test(p.body));if(state.filter==='official')posts=posts.filter(p=>p.role||['BLACKHAND','MASTER','Gemini','ChatGPT','🎂','🎊'].includes(p.name));const per=18,total=Math.max(1,Math.ceil(posts.length/per));state.page=Math.min(state.page,total);let shown=posts.slice((state.page-1)*per,state.page*per);app.innerHTML=`<div class="thread-banner"><span class="back-hit" id="threadBack">←</span><div class="thread-banner-main"><div class="thread-banner-title">${t.title}</div><div class="thread-sub"><span>[${t.status}]</span><span>💬 ${fmt(t.replies)}</span>${t.bounty?`<span>🐟×${fmt(t.bounty)}</span>`:''}<span>${t.board==='cat'?'😼猫版':'🐶狗版'}</span></div></div></div><div class="thread-hero"><b>${t.support||t.summary||''}</b><br><small>${t.summary||''}</small></div><div class="thread-tools"><button class="chip" data-sort="asc">最早</button><button class="chip" data-sort="desc">最新倒序</button><button class="chip" data-filter="all">全部</button><button class="chip" data-filter="image">只看图片</button><button class="chip" data-filter="official">只看官方</button><button class="chip" id="jumpFloor">跳楼</button></div><div class="pagination">${pageButtons(total)}</div><div id="postList"></div><div class="pagination">${pageButtons(total)}</div>${state.account==='land'?replyComposer(t):'<div class="system-msg">游客组只可围观，切换陆党后可以回复与打赏。</div>'}`;$('#threadBack').onclick=()=>renderHome(t.board);const list=$('#postList');shown.forEach(p=>list.append(renderPost(p,id)));bindThreadEvents(id);if(floor){setTimeout(()=>document.getElementById(`floor-${floor}`)?.scrollIntoView({behavior:'smooth',block:'center'}),80)}}
+function pageButtons(total){let out='';for(let i=1;i<=total;i++)out+=`<button class="page-btn ${i===state.page?'active':''}" data-page="${i}">${i}</button>`;return out}
+function roleClass(p){if(p.role==='admin'||p.name==='BLACKHAND')return'role-admin';if(p.role==='master'||p.name==='MASTER')return'role-master';if(p.role==='ai'||(['Gemini','ChatGPT'].includes(p.name)&&!p.fakeAI))return'role-ai';return''}
+function renderPost(p,threadId){const deleted=state.deleted.includes(`${threadId}:${p.f}`),marked=state.markedTrips.includes(p.trip)&&p.trip;const el=document.createElement('article');el.id=`floor-${p.f}`;el.className=`post ${marked?'marked':''} ${deleted?'deleted':''}`;const like=state.likes[`${threadId}:${p.f}`]||0;el.innerHTML=`<div class="post-head"><b class="floor-link" data-floor="${p.f}">#${p.f}</b><span class="${roleClass(p)}">${esc(p.name)}</span><span>| ${esc(p.date||'--')}</span>${p.trip?`<span>| ${esc(p.trip)}</span>`:''}${p.ban||state.bans[p.trip]?`<span class="banned">（已封禁 ${esc(p.ban||state.bans[p.trip])}）</span>`:''}</div>${marked?'<div class="admin-tag">⚑ BLACKHAND 已标记：同UID/识别码发言高亮显示</div>':''}<div class="post-body">${deleted?'[该楼层已被管理员删除]':p.body}</div><div class="actions"><button class="action-btn" data-like="1">👍 ${like>0?like:0}</button><button class="action-btn" data-like="-1">👎 ${like<0?Math.abs(like):0}</button><button class="action-btn" data-reply="${p.f}">回复</button><button class="action-btn" data-tip="${p.f}">打赏</button></div><div class="admin-toolbar">▲ ${p.ip?`[IP: ${p.ip}]`:'[查看UID]'} <span class="admin-btn" data-admin="ban">[封禁]</span><span class="admin-btn" data-admin="mark">[标记]</span><span class="admin-btn" data-admin="delete">[${deleted?'恢复':'删除'}]</span><span class="admin-btn" data-admin="log">[日志]</span></div>`;el.dataset.trip=p.trip||'';el.dataset.floor=p.f;return el}
+function replyComposer(t){return `<div class="composer"><b>匿名回复</b><textarea id="replyText" placeholder="请善用同一副口癖：轻蔑、嘲讽、置身事外的讥诮。也可以正常说话。"></textarea><div class="form-grid"><div class="field"><label>自定义名（默认：善人さん）</label><input id="replyName" placeholder="善人さん"></div><div class="field"><label>识别码（留空随机）</label><input id="replyTrip" placeholder="6位识别码"></div></div><br><button class="primary" id="submitReply">发表回复</button></div>`}
+function bindThreadEvents(id){$$('[data-page]').forEach(b=>b.onclick=()=>{state.page=+b.dataset.page;renderThread(id)});$$('[data-sort]').forEach(b=>b.onclick=()=>{state.sort=b.dataset.sort;state.page=1;renderThread(id)});$$('[data-filter]').forEach(b=>b.onclick=()=>{state.filter=b.dataset.filter;state.page=1;renderThread(id)});$('#jumpFloor').onclick=()=>{const n=prompt('输入楼层号：');if(n)renderThread(id,+n)};$$('.floor-link').forEach(x=>x.onclick=()=>navigator.clipboard?.writeText(location.href+`#floor-${x.dataset.floor}`).then(()=>toast(`已复制 #${x.dataset.floor} 楼链接`)).catch(()=>toast(`定位：#${x.dataset.floor}`)));$$('.cross-floor').forEach(x=>x.onclick=()=>renderThread(id,+x.dataset.floor));$$('.crosslink').forEach(x=>x.onclick=e=>{e.stopPropagation();openThread(x.dataset.thread)});$$('.attachment').forEach(x=>x.onclick=()=>showAttachment(x.dataset.file));$$('.paywall').forEach(x=>setupPaywall(x));$$('[data-like]').forEach(x=>x.onclick=()=>{const post=x.closest('.post'),k=`${id}:${post.dataset.floor}`;state.likes[k]=(state.likes[k]||0)+Number(x.dataset.like);persist();renderThread(id,+post.dataset.floor)});$$('[data-reply]').forEach(x=>x.onclick=()=>{const ta=$('#replyText');ta.value=`> 回复 #${x.dataset.reply}\n`;ta.scrollIntoView({behavior:'smooth'});ta.focus()});$$('[data-tip]').forEach(x=>x.onclick=()=>tipFloor(id,x.dataset.tip));$$('[data-admin]').forEach(x=>x.onclick=()=>adminAction(x.closest('.post'),id,x.dataset.admin));$('#submitReply')?.addEventListener('click',()=>submitReply(id))}
+function setupPaywall(el){const price=+el.dataset.price,key=`${state.thread}:${price}:${el.dataset.content.slice(0,16)}`;if(state.unlocked[key]){el.classList.add('unlocked');el.innerHTML=decodeURIComponent(el.dataset.content);return}const b=document.createElement('button');b.className='primary';b.textContent='支付并查看';b.onclick=()=>{if(state.account==='water')return toast('游客组没有查看权限');if(state.coins<price)return toast('善币不足！穷鬼退散。');state.coins-=price;state.unlocked[key]=true;updateUI();el.classList.add('unlocked');el.innerHTML=decodeURIComponent(el.dataset.content);toast(`支付 ${price} 善成功`)};el.append(document.createElement('br'),b)}
+function showAttachment(file){modal(file,`<div class="fake-image"><div><b>${esc(file)}</b><br><br>此演示包未内置原始图片，保留了附件构图、文件名与剧情触发。<br><small>点击附件的交互已修复；后续把真实图片放进 images/ 后可继续接入。</small></div></div><p>EXIF：设备未知 · GPS已清除 · 上传源：黑市附件服务器</p>`)}
+function tipFloor(id,floor){if(state.account==='water')return toast('游客组不能打赏');const amount=Number(prompt('打赏多少善？（最低10）','99'));if(!amount||amount<10)return;if(amount>state.coins)return toast('善币不足');state.coins-=amount;state.logs.unshift(`${new Date().toLocaleString()} 打赏 ${id}#${floor} ${amount}善`);updateUI();toast(`感谢大善人さん打赏【${amount}善】！`)}
+function adminAction(post,id,action){if(!state.admin)return toast('请先开启 BLACKHAND 模式');const trip=post.dataset.trip||`floor-${post.dataset.floor}`,key=`${id}:${post.dataset.floor}`;if(action==='ban'){const days=prompt('封禁天数','7天');if(days){state.bans[trip]=days;state.logs.unshift(`封禁 ${trip} ${days} @ ${key}`);toast(`已封禁 ${days}`)}}if(action==='mark'){if(state.markedTrips.includes(trip))state.markedTrips=state.markedTrips.filter(x=>x!==trip);else state.markedTrips.push(trip);state.logs.unshift(`标记 ${trip} @ ${key}`)}if(action==='delete'){if(state.deleted.includes(key))state.deleted=state.deleted.filter(x=>x!==key);else state.deleted.push(key);state.logs.unshift(`切换删除状态 ${key}`)}if(action==='log')modal('管理员工作日志',`<div class="log-list">${state.logs.map(esc).join('<br>')||'暂无操作'}</div>`);persist();renderThread(id,+post.dataset.floor)}
+function submitReply(id){const text=$('#replyText').value.trim();if(!text)return toast('说点什么再发');const t=threads[id],max=Math.max(t.replies,...expandedPosts(t).map(x=>x.f));const trip=$('#replyTrip').value.trim()||Math.random().toString(36).slice(2,8);state.userPosts.push({thread:id,f:max+1,name:$('#replyName').value.trim()||'善人さん',date:new Date().toLocaleString('zh-CN',{month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'}).replace('/','/'),trip,body:esc(text).replace(/\n/g,'<br>')});t.replies++;persist();state.sort='desc';state.page=1;renderThread(id);toast('发表成功，善币 +1');state.coins++;updateUI()}
+function renderMail(){navPush('mail');state.mailRead=true;activeNav('mail');setAddress('mypage/mail.html');app.innerHTML=`<div class="home-head"><h1>📬 您的信箱</h1><p>共 3 封站内信 · 1 封曾未读</p></div><div class="mail-card"><b>匿名善人</b><br><small>07/24 20:16</small><hr><p>您好，想操您。</p></div><div class="mail-card"><b>💓 心神</b><br><small>07/24 20:49</small><hr><p>兼职的事，可以谈。不要在公开楼里继续贴个人信息。</p></div><div class="mail-card"><b>系统通知</b><br><small>07/27 10:03</small><hr><p>您踩中彩蛋，获得328善。善币已入账。</p></div>`;updateUI()}
+function renderProfile(){navPush('profile');activeNav('profile');setAddress('mypage/index.html');app.innerHTML=`<div class="home-head"><h1>👤 MY PAGE / 陆党</h1><p>匿名并不等于不可追踪，请善用VPN与自知之明。</p></div><div class="profile-card"><h2>善人さん</h2><div class="profile-grid"><div class="profile-stat">余额<br><b>🐟 ${fmt(state.coins)}</b></div><div class="profile-stat">本地回复<br><b>${state.userPosts.length}</b></div><div class="profile-stat">管理员操作<br><b>${state.logs.length}</b></div></div></div><div class="panel"><h3>发帖记录</h3>${state.userPosts.length?state.userPosts.map(x=>`<p><button class="chip" data-open-user="${x.thread}">#${x.f} ${esc(threads[x.thread].title)}</button></p>`).join(''):'<p>尚无本地发帖记录。</p>'}</div>${state.admin?adminConsole():''}`;$$('[data-open-user]').forEach(x=>x.onclick=()=>openThread(x.dataset.openUser));bindAdminConsole()}
+function adminConsole(){return `<div class="admin-console"><div class="panel"><h3>BLACKHAND 控制台</h3><p>标记目标：${state.markedTrips.length}</p><p>封禁目标：${Object.keys(state.bans).length}</p><p>删除楼层：${state.deleted.length}</p><button class="primary" id="clearAdmin">清空本地管理操作</button></div><div class="panel"><h3>工作日志</h3><div class="log-list">${state.logs.map(esc).join('<br>')||'暂无操作痕迹'}</div></div></div>`}
+function bindAdminConsole(){$('#clearAdmin')?.addEventListener('click',()=>{if(confirm('确定清空本地管理操作？')){state.markedTrips=[];state.bans={};state.deleted=[];state.logs=[];persist();renderProfile()}})}
+function renderSearch(){navPush('search');activeNav('search');setAddress('search/index.html');app.innerHTML=`<div class="home-head"><h1>⌕ 全站检索</h1><p>可以搜标题、摘要、楼层正文、识别码与附件名。</p></div><input class="search-input" id="searchInput" placeholder="例如：士力架 / KdT2nG / 苏枋 / 番茄"><br><br><div id="searchResults" class="empty-state">输入关键词开始摄取废料。</div>`;$('#searchInput').oninput=e=>doSearch(e.target.value)}
+function doSearch(q){q=q.trim().toLowerCase();const out=$('#searchResults');if(!q){out.className='empty-state';out.textContent='输入关键词开始摄取废料。';return}const hits=[];for(const [id,t] of Object.entries(threads)){let score=(t.title+t.summary).toLowerCase().includes(q)?5:0;const ps=t.posts.filter(p=>(p.body+p.name+(p.trip||'')).toLowerCase().includes(q));score+=ps.length;if(score)hits.push({id,t,ps,score})}hits.sort((a,b)=>b.score-a.score);out.className='';out.innerHTML=hits.length?hits.map(h=>`<article class="thread-card" data-result="${h.id}"><span class="bounty-icon">${h.t.board==='cat'?'😼':'🐶'}</span><div class="thread-title">${h.t.title}</div><div class="thread-meta">命中 ${h.score}</div><div class="thread-preview">${h.ps.slice(0,2).map(p=>`#${p.f} ${p.body.replace(/<[^>]+>/g,'').slice(0,70)}`).join(' / ')||h.t.summary}</div></article>`).join(''):'<div class="empty-state">没有结果。可能被黑手删了，也可能根本不存在。</div>';$$('[data-result]').forEach(x=>x.onclick=()=>openThread(x.dataset.result))}
+function renderCompose(){navPush('compose');setAddress('post/new.html');app.innerHTML=`<div class="home-head"><h1>✎ 发布主题</h1><p>猫版发悬赏，狗版发八卦。发出去之后一般没有后悔药。</p></div><div class="panel"><div class="form-grid"><div class="field"><label>版块</label><select id="newBoard"><option value="dog">🐶 狗版</option><option value="cat">😼 猫版</option></select></div><div class="field"><label>悬赏（猫版必填）</label><input id="newBounty" type="number" min="0" value="0"></div></div><div class="field"><label>标题</label><input id="newTitle"></div><div class="field"><label>正文</label><textarea id="newBody" style="width:100%;min-height:180px"></textarea></div><br><button class="primary" id="publishThread">发布</button></div>`;$('#publishThread').onclick=()=>{const title=$('#newTitle').value.trim(),body=$('#newBody').value.trim(),board=$('#newBoard').value,bounty=+$('#newBounty').value;if(!title||!body)return toast('标题和正文不能为空');if(board==='cat'&&bounty<1)return toast('猫版必须设置悬赏');if(bounty>state.coins)return toast('善币不足');state.coins-=bounty;const id='user'+Date.now();threads[id]={board,title,bounty,status:'新发布',replies:1,summary:body.slice(0,60),posts:[P(1,'善人さん',new Date().toLocaleString('zh-CN'),'LOCAL',esc(body).replace(/\n/g,'<br>'))]};boardLists[board].unshift(id);updateUI();openThread(id);toast('主题发布成功')};}
+function renderBird(){if(state.coins<10000)return modal('🐦 聚宝楼','<div class="system-msg">听说氪条到一万才能进。</div><p>您的善币累计尚未达到门槛。</p>');navPush('bird');setAddress('bird/index.html');app.innerHTML=`<div class="home-head"><h1>🐦 聚宝楼</h1><p>交易、黑科技与地下情报流通区。当前仅展示入口演示。</p></div><div class="panel"><h3>PRO-MINOR05 微型摄像头 · 100枚求购</h3><p>[仅注册高净值用户可见]</p></div><div class="panel"><h3>本地名人不雅影像拍卖传闻澄清楼</h3><p>[已被MASTER锁定]</p></div>`}
+function renderMobileMore(){modal('我的',`<div class="mobile-sheet"><button id="sheetProfile">👤 个人主页</button><button id="sheetMail">📬 信箱</button><button id="sheetCompose">✎ 发帖</button><button id="sheetAdmin">${state.admin?'关闭':'开启'} BLACKHAND</button><button id="sheetParty">切换为${state.account==='land'?'水党':'陆党'}</button></div>`);$('#sheetProfile').onclick=()=>{closeModal();renderProfile()};$('#sheetMail').onclick=()=>{closeModal();renderMail()};$('#sheetCompose').onclick=()=>{closeModal();renderCompose()};$('#sheetAdmin').onclick=()=>{state.admin=!state.admin;updateUI();closeModal();toast(`BLACKHAND ${state.admin?'已登录':'已退出'}`)};$('#sheetParty').onclick=()=>{state.account=state.account==='land'?'water':'land';updateUI();closeModal();renderHome(state.board)}}
+function goBack(){const h=state.history.pop();if(!h)return renderHome('cat');state.view=h.view;state.thread=h.thread;state.board=h.board;state.page=h.page||1;if(h.view==='thread')renderThread(h.thread);else if(h.view==='mail')renderMail();else if(h.view==='profile')renderProfile();else if(h.view==='search')renderSearch();else renderHome(h.board)}
 
-  app.innerHTML = `
-    <div class="home-head">
-      <h1>${board === 'dog' ? '🐶 狗版 · 八卦放送区' : '😼 猫版 · 有偿互助区'}</h1>
-      <p>${state.account === 'land' ? '当前身份：陆党（注册用户）' : '当前身份：水党（游客）'} · 今日在线 328 人</p>
-    </div>
-    <span class="section-label">LATEST THREADS</span>
-    <div id="threadList"></div>`;
-
-  const list = document.getElementById('threadList');
-  items.forEach(t => {
-    const card = document.createElement('article');
-    card.className = `thread-card ${t.hot ? 'hot-border' : ''}`;
-    card.innerHTML = `
-      ${t.hot ? '<span class="hot-tag">HOT♥</span>' : ''}
-      <span class="bounty-icon">😼 🐟×${t.bounty}</span>
-      <div class="thread-title">${t.title}</div>
-      <div class="thread-meta">[${t.status}] 💬 ${t.replies}</div>`;
-    card.addEventListener('click', t.action || (() => alert('该楼暂未收录进演示版。')));
-    list.appendChild(card);
-  });
-}
-
-function renderThread(id) {
-  let posts, title, extra = '';
-  if (id === 'identity') {
-    posts = data.identity; title = '风铃眼罩佬真身究竟是？？！！';
-  } else {
-    posts = data[id];
-    title = data.dog.find(t => t.id === id)?.title || '主题帖';
-    if (id === 'job') extra = '<div class="system-msg">🎊 本楼埋有 1/1 个踩楼彩蛋，GOOD LUCK! 🎊</div>';
-  }
-
-  app.innerHTML = `
-    <div class="thread-banner" id="backToBoard">
-      <span style="font-size:24px">${id === 'identity' ? '😼' : '🐶'}</span>
-      <div><div class="rainbow-text">${title}</div><small>点击标题返回版面</small></div>
-    </div>${extra}<div id="postList"></div>`;
-  document.getElementById('backToBoard').onclick = () => renderHome(id === 'identity' ? 'cat' : 'dog');
-
-  const list = document.getElementById('postList');
-  posts.forEach(p => {
-    const post = document.createElement('article');
-    post.className = `post ${p.admin ? 'admin-post' : ''}`;
-    const adminUI = p.admin ? '<div class="admin-tag">由管理员 <b>BLACKHAND</b> 标记：<u>[风铃阴阳头的八卦分布图]</u>　理由：<b>性骚扰</b></div>' : '';
-    const rewardUI = p.admin ? '<div class="admin-reward">感谢大善人さん【BLACKHAND】打赏【-65535善】！<br>备注：上次和我聊得开心吗？听说你有好好道歉呀。顺便借您吉言啦^^</div>' : '';
-    const aiClass = (!p.fakeAI && (p.name === 'Gemini' || p.name === 'ChatGPT')) ? 'role-ai' : '';
-    post.innerHTML = `
-      <div class="post-head">
-        <b>#${p.f}</b><span class="${aiClass}">${p.name}</span>
-        ${p.date ? `<span>| ${p.date}</span>` : ''}${p.id ? `<span>| ${p.id}</span>` : ''}${p.trip ? `<span>| ${p.trip}</span>` : ''}
-        ${p.ban ? '<span class="banned">（已封禁）</span>' : ''}
-      </div>
-      ${adminUI}
-      <div class="post-body">${p.body}</div>
-      ${rewardUI}
-      ${typeof p.up === 'number' ? `<div class="actions">👍 ${p.up}　👎 ${p.down}</div>` : ''}
-      <div class="admin-toolbar">▲ ${p.ip ? `[IP: ${p.ip}]` : '[查看UID]'}
-        <span class="admin-btn" data-action="ban">[封禁]</span>
-        <span class="admin-btn" data-action="mark">[标记]</span>
-        <span class="admin-btn" data-action="delete">[删除]</span>
-      </div>`;
-    list.appendChild(post);
-  });
-  bindDynamicEvents();
-}
-
-function bindDynamicEvents() {
-  document.querySelectorAll('.paywall').forEach(el => {
-    if (!el.querySelector('button')) {
-      const btn = document.createElement('button');
-      btn.className = 'pixel-btn'; btn.textContent = '支付并查看';
-      btn.onclick = () => unlock(el, Number(el.dataset.price));
-      el.append(document.createElement('br'), btn);
-    }
-  });
-  document.querySelectorAll('[data-action="ban"]').forEach(btn => btn.onclick = banUser);
-  document.querySelectorAll('[data-action="mark"]').forEach(btn => btn.onclick = () => alert('已全局标记该目标！'));
-  document.querySelectorAll('[data-action="delete"]').forEach(btn => btn.onclick = () => alert('演示模式：帖子已加入删除队列。'));
-}
-
-function unlock(el, price) {
-  if (state.account === 'water') return alert('>>> 您所在的[游客组]没有查看权限 <<<');
-  if (state.coins < price) return alert('善币不足！穷鬼退散。');
-  state.coins -= price; updateUI();
-  el.classList.add('unlocked');
-  el.innerHTML = '【🔒热吻实锤.JPG】<br>照片解密成功：前景是一对自拍情侣；前两排的目标人物（樱遥和苏枋）正襟危坐，中间隔着爆米花和可乐，标准观影姿势。';
-}
-function banUser() {
-  const days = prompt('请输入封禁天数（如：99）：', '99');
-  if (days) alert(`操作成功：已封禁 ${days} 天。\n系统日志：BLACKHAND，我真棒。`);
-}
-function renderMail() {
-  state.mailRead = true; updateUI(); setActiveNav('mail');
-  app.innerHTML = `<div class="home-head"><h1>📬 您的信箱</h1><p>共 1 封站内信</p></div><div class="mail-card"><b>匿名善人</b><br><small>07/26 03:28</small><hr><br>您好，想操您。</div>`;
-}
-function setActiveNav(board) {
-  document.querySelectorAll('.icon-link,.nav-btn').forEach(el => el.classList.remove('active'));
-  if (board === 'cat') { document.getElementById('navCat')?.classList.add('active'); document.getElementById('mobileCat')?.classList.add('active'); }
-  if (board === 'dog') { document.getElementById('navDog')?.classList.add('active'); document.getElementById('mobileDog')?.classList.add('active'); }
-  if (board === 'mail') document.getElementById('mobileMail')?.classList.add('active');
-  if (board === 'home') document.getElementById('mobileHome')?.classList.add('active');
-}
-function updateUI() {
-  document.body.className = `${state.account === 'water' ? 'water-mode' : ''} ${state.admin ? 'admin-mode' : ''}`;
-  document.getElementById('btnLand')?.classList.toggle('active', state.account === 'land');
-  document.getElementById('btnWater')?.classList.toggle('active', state.account === 'water');
-  document.getElementById('coinCount').textContent = state.coins;
-  document.getElementById('mobileCoins').textContent = `🐟 ${state.coins}`;
-  document.getElementById('mailBadge').style.display = state.mailRead ? 'none' : 'inline-block';
-}
-
-document.getElementById('homeBtn').onclick = () => renderHome('cat');
-document.getElementById('navCat').onclick = () => renderHome('cat');
-document.getElementById('navDog').onclick = () => renderHome('dog');
-document.getElementById('navMail').onclick = renderMail;
-document.getElementById('btnLand').onclick = () => { state.account = 'land'; updateUI(); renderHome(state.board); };
-document.getElementById('btnWater').onclick = () => { state.account = 'water'; updateUI(); renderHome(state.board); };
-document.getElementById('adminToggle').onclick = () => { state.admin = !state.admin; updateUI(); };
-document.getElementById('mobileHome').onclick = () => renderHome('cat');
-document.getElementById('mobileCat').onclick = () => renderHome('cat');
-document.getElementById('mobileDog').onclick = () => renderHome('dog');
-document.getElementById('mobileMail').onclick = renderMail;
-
-updateUI();
-renderHome('cat');
+$('#homeBtn').onclick=()=>renderHome('cat');$('#navCat').onclick=()=>renderHome('cat');$('#navDog').onclick=()=>renderHome('dog');$('#navBird').onclick=renderBird;$('#navMail').onclick=renderMail;$('#navProfile').onclick=renderProfile;$('#navSearch').onclick=renderSearch;$('#navCompose').onclick=renderCompose;$('#btnLand').onclick=()=>{state.account='land';updateUI();renderHome(state.board)};$('#btnWater').onclick=()=>{state.account='water';state.admin=false;updateUI();renderHome(state.board)};$('#adminToggle').onclick=()=>{state.admin=!state.admin;state.logs.unshift(`${new Date().toLocaleString()} ${state.admin?'登录':'退出'} BLACKHAND`);updateUI();toast(`BLACKHAND ${state.admin?'管理视角已开启':'已退出'}`);if(state.view==='thread')renderThread(state.thread);if(state.view==='profile')renderProfile()};$('#mobileHome').onclick=()=>renderHome('cat');$('#mobileCat').onclick=()=>renderHome('cat');$('#mobileDog').onclick=()=>renderHome('dog');$('#mobileSearch').onclick=renderSearch;$('#mobileMore').onclick=renderMobileMore;$('#mobileBrand').onclick=()=>renderHome('cat');$('#browserBack').onclick=goBack;$('#browserRefresh').onclick=()=>{if(state.view==='thread')renderThread(state.thread);else if(state.view==='mail')renderMail();else if(state.view==='profile')renderProfile();else if(state.view==='search')renderSearch();else renderHome(state.board);toast('页面已刷新')};$('#modalClose').onclick=closeModal;$('#modalBackdrop').onclick=e=>{if(e.target===$('#modalBackdrop'))closeModal()};document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal()});
+updateUI();renderHome(state.board);
