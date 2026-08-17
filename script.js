@@ -419,7 +419,7 @@ function renderPortal(){
     <div class="entry-noise" aria-hidden="true"></div>
     <div class="entry-main">
       <label class="entry-uid-label" for="entryUid">UID</label>
-      <input class="entry-uid" id="entryUid" value="${land?'M-TOWN-047281':''}" placeholder="UID" autocomplete="off" spellcheck="false">
+      <input class="entry-uid" id="entryUid" value="${land?'M-TOWN-03280401':''}" placeholder="UID" autocomplete="off" spellcheck="false">
       <img class="entry-logo" src="assets/ui/logo.png?v=2" alt="日行一善">
       <button class="entry-switch ${land?'is-land':'is-water'}" id="entryIdentitySwitch" type="button" aria-label="切换游客或登录身份">
         <span class="entry-switch-track"><i></i></span>
@@ -435,7 +435,7 @@ function renderPortal(){
     const sw=$('#entryIdentitySwitch');
     sw.classList.toggle('is-land',land);sw.classList.toggle('is-water',!land);
     $('#entryUid').disabled=!land;
-    if(land&&!$('#entryUid').value)$('#entryUid').value='M-TOWN-047281';
+    if(land&&!$('#entryUid').value)$('#entryUid').value='M-TOWN-03280401';
     $('#entryModeNote').textContent=land?'陆党 / 注册用户：可回复、打赏、查看个人页':'水党 / 游客：仅浏览公开内容';
     updateUI();
   };
