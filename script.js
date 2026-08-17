@@ -15,7 +15,7 @@ for(const key of [STORAGE,'mTownForumV31']){
     if(key===STORAGE){try{localStorage.removeItem(STORAGE)}catch{}}
   }
 }
-const state = Object.assign({account:'land',admin:false,coins:12500,mailRead:false,board:'cat',view:'home',thread:null,page:1,sort:'asc',filter:'all',history:[],markedTrips:[],bans:{},deleted:[],likes:{},unlocked:{},userPosts:[],logs:[],notificationsRead:false,portalSeen:false,easterBuffer:'',aiReplies:[]}, saved);
+const state = Object.assign({account:'land',admin:false,coins:99999,mailRead:false,board:'cat',view:'home',thread:null,page:1,sort:'asc',filter:'all',history:[],markedTrips:[],bans:{},deleted:[],likes:{},unlocked:{},userPosts:[],logs:[],notificationsRead:false,portalSeen:false,easterBuffer:'',aiReplies:[]}, saved);
 const persist=()=>{try{localStorage.setItem(STORAGE,JSON.stringify(state))}catch{console.warn('本地状态暂时无法保存')}};
 const esc=s=>String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
 const fmt=n=>Number(n).toLocaleString('zh-CN');
