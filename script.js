@@ -23,8 +23,8 @@ const P=(f,name,date,trip,body,extra={})=>({f,name,date,trip,body,...extra});
 const MEDIA={
   '这里_户型图.JPG':'/assets/media/floorplan.jpg',
   '户型图.JPG':'/assets/media/floorplan.jpg',
-  'M町游乐园导览图.JPG':'/assets/media/amusement-map.jpg?v=2',
-  '游乐园导览图.JPG':'/assets/media/amusement-map.jpg?v=2'
+  'M町游乐园导览图.JPG':'/assets/media/amusement-map.jpg',
+  '游乐园导览图.JPG':'/assets/media/amusement-map.jpg'
 };
 const A=(name,caption='点击查看附件')=>`<button class="attachment ${MEDIA[name]?'has-real-image':''}" data-file="${esc(name)}"${MEDIA[name]?` data-src="${MEDIA[name]}"`:''}>▣ ${esc(name)}<small>${esc(caption)}</small></button>`;
 const AU=(name)=>`<button class="attachment audio" data-file="${esc(name)}">▶ ${esc(name)}</button>`;
