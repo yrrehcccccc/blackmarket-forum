@@ -1,0 +1,15 @@
+日行一善 · M-TOWN 黑市论坛 / Netlify 静态部署包
+
+方法一：直接拖拽
+1. 解压本压缩包。
+2. 登录 Netlify，进入 Deploys 页面。
+3. 将解压后的整个文件夹拖入部署区域。
+
+方法二：连接 Git 仓库
+- Build command：留空
+- Publish directory：.
+
+注意：
+- index.html 必须位于上传文件夹的最外层。
+- 请勿拆散 assets、style.css 和 script.js。
+- 帖子回复、善币等互动状态保存在访问者自己的浏览器 localStorage 中。
