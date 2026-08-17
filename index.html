@@ -5,16 +5,18 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#241b2f">
   <meta name="description" content="日行一善 · M-TOWN 匿名论坛互动演示">
+  <meta name="m-town-build" content="netlify-static-v7-corrected">
   <title>日行一善 · M-TOWN 黑市论坛</title>
   <link rel="icon" href="assets/ui/logo.png">
-  <link rel="stylesheet" href="font.css">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <div class="scanlines" aria-hidden="true"></div>
   <div class="desktop-wrapper">
     <header class="browser-header">
-      <div class="browser-title"><span class="pixel-mark">◆</span> FOUND-DOG.ONLINE / M-TOWN BBS <span class="version">V4.11</span></div>
+      <div class="browser-title">
+        <span class="pixel-mark">◆</span> FOUND-DOG.ONLINE / M-TOWN BBS <span class="version">V4.11</span>
+      </div>
       <div class="window-controls" aria-hidden="true"><span>_</span><span>□</span><span>×</span></div>
       <div class="address-row">
         <button class="browser-mini" id="browserBack" title="返回">←</button>
@@ -25,16 +27,19 @@
 
     <div class="mobile-topbar">
       <button class="mobile-brand" id="mobileBrand" aria-label="返回日行一善首页">
-        <span class="mini-good-logo" aria-hidden="true"><img src="assets/ui/logo.png" alt=""></span>
+        <span class="mini-good-logo" aria-hidden="true"><img src="assets/ui/logo.png?v=2" alt=""></span>
         <span class="brand-copy"><strong>日行一善</strong><small>FOUND-DOG.ONLINE // M-TOWN</small></span>
       </button>
-      <span class="mobile-status"><button id="mobileNotify" class="notify-mini" aria-label="通知">✦<b id="mobileNotifyBadge">3</b></button><span id="mobileCoins">🐟 12500</span></span>
+      <span class="mobile-status">
+        <button id="mobileNotify" class="notify-mini" aria-label="通知">✦<b id="mobileNotifyBadge">3</b></button>
+        <span id="mobileCoins">🐟 12500</span>
+      </span>
     </div>
 
     <div class="layout">
       <aside class="sidebar">
         <div class="hanging-line"></div>
-        <button class="side-item seal" id="homeBtn" title="首页"><img src="assets/ui/logo.png" alt="日行一善"></button>
+        <button class="side-item seal" id="homeBtn" title="首页"><img src="assets/ui/logo.png?v=2" alt="日行一善"></button>
         <div class="party-toggle side-item">
           <button class="pixel-btn toggle active" id="btnLand">陆党</button>
           <button class="pixel-btn toggle" id="btnWater">水党</button>
@@ -78,7 +83,5 @@
   <div class="toast-stack" id="toastStack" aria-live="polite"></div>
 
   <script src="script.js?v=4.11"></script>
-
-
 </body>
 </html>
