@@ -164,3 +164,8 @@ linear-gradient(180deg,#3a2c47 0%,#31253b 70%,#2d2137 100%)}
 }
 
 @media(max-width:760px){.entry-logo{width:min(235px,55vw)}.mobile-sheet button{display:flex;align-items:center;gap:9px;text-align:left}.mobile-sheet .px-icon{width:20px;height:20px;flex-basis:20px}}
+
+/* BLACKHAND online easter-egg icon */
+.secret-online{display:flex;align-items:center;gap:9px;padding:6px 11px 6px 6px}
+.secret-online img{display:block;width:46px;height:39px;object-fit:cover;border:2px solid var(--green);image-rendering:pixelated}
+.secret-online span{white-space:nowrap}

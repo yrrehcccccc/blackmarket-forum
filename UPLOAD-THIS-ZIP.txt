@@ -1,6 +1,7 @@
-NETLIFY DEPLOY PACKAGE
+GITHUB / NETLIFY DEPLOY PACKAGE
 
-请把包含本文件的 ZIP 直接上传到 Netlify Deploys。
-ZIP 根目录已经包含 index.html、style.css、script.js 和 assets；不要再上传 ChatGPT Sites 工程源码包。
+GitHub：解压 ZIP，将 index.html、style.css、script.js、_headers、assets 等内容放到仓库根目录并覆盖旧文件。
+Netlify：也可以把这个 ZIP 直接上传到 Netlify Deploys。
+ZIP 根目录已包含网页入口和完整资源；不要上传 ChatGPT Sites 工程源码包。
 
-Build marker: netlify-static-v7-corrected
+Build marker: netlify-static-v7-blackhand-icon

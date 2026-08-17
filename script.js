@@ -15,7 +15,7 @@ for(const key of [STORAGE,'mTownForumV31']){
     if(key===STORAGE){try{localStorage.removeItem(STORAGE)}catch{}}
   }
 }
-const state = Object.assign({account:'land',admin:false,coins:99999,mailRead:false,board:'cat',view:'home',thread:null,page:1,sort:'asc',filter:'all',history:[],markedTrips:[],bans:{},deleted:[],likes:{},unlocked:{},userPosts:[],logs:[],notificationsRead:false,portalSeen:false,easterBuffer:'',aiReplies:[]}, saved);
+const state = Object.assign({account:'land',admin:false,coins:12500,mailRead:false,board:'cat',view:'home',thread:null,page:1,sort:'asc',filter:'all',history:[],markedTrips:[],bans:{},deleted:[],likes:{},unlocked:{},userPosts:[],logs:[],notificationsRead:false,portalSeen:false,easterBuffer:'',aiReplies:[]}, saved);
 const persist=()=>{try{localStorage.setItem(STORAGE,JSON.stringify(state))}catch{console.warn('本地状态暂时无法保存')}};
 const esc=s=>String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
 const fmt=n=>Number(n).toLocaleString('zh-CN');
@@ -419,7 +419,7 @@ function renderPortal(){
     <div class="entry-noise" aria-hidden="true"></div>
     <div class="entry-main">
       <label class="entry-uid-label" for="entryUid">UID</label>
-      <input class="entry-uid" id="entryUid" value="${land?'M-TOWN-03280401':''}" placeholder="UID" autocomplete="off" spellcheck="false">
+      <input class="entry-uid" id="entryUid" value="${land?'M-TOWN-047281':''}" placeholder="UID" autocomplete="off" spellcheck="false">
       <img class="entry-logo" src="assets/ui/logo.png?v=2" alt="日行一善">
       <button class="entry-switch ${land?'is-land':'is-water'}" id="entryIdentitySwitch" type="button" aria-label="切换游客或登录身份">
         <span class="entry-switch-track"><i></i></span>
@@ -435,7 +435,7 @@ function renderPortal(){
     const sw=$('#entryIdentitySwitch');
     sw.classList.toggle('is-land',land);sw.classList.toggle('is-water',!land);
     $('#entryUid').disabled=!land;
-    if(land&&!$('#entryUid').value)$('#entryUid').value='M-TOWN-03280401';
+    if(land&&!$('#entryUid').value)$('#entryUid').value='M-TOWN-047281';
     $('#entryModeNote').textContent=land?'陆党 / 注册用户：可回复、打赏、查看个人页':'水党 / 游客：仅浏览公开内容';
     updateUI();
   };
@@ -447,7 +447,7 @@ function renderNotifications(){navPush('notify');state.notificationsRead=true;ac
 function renderIdentity(key){navPush('identity');setAddress(`user/${encodeURIComponent(key)}.html`);const all=[];Object.entries(threads).forEach(([id,t])=>expandedPostsFor(t,id).forEach(p=>{if((p.trip||p.name)===key)all.push({id,t,p})}));const aliases={KdT2nG:['K佬','天使','使大','巨魔K'],Kk88kK:['KKsama','疯K新靓号'],xV6kL4:['4师','前线站姐'],BLACKHAND:['管理员','小黑','权限狗'],'💓':['心神','特殊矿石鉴定师'],MASTER:['站长','全坛最大巨魔']};const icon=key==='BLACKHAND'?'✋':key==='xV6kL4'?'📸':key==='💓'?'💓':key==='MASTER'?'👑':'👤';app.innerHTML=`<div class="home-head"><h1>匿名身份档案</h1><p>识别码不是实名，但足够成为一张脸。</p></div><div class="identity-card"><div class="identity-avatar">${icon}</div><div><h2>${esc(key)}</h2><div class="identity-tags">${(aliases[key]||['善人さん']).map(x=>`<span class="identity-tag">${x}</span>`).join('')}</div><p>出现楼层：<b>${all.length}</b> · 涉及主题：<b>${new Set(all.map(x=>x.id)).size}</b></p></div></div><div class="panel"><h3>最近活动</h3>${all.slice(-12).reverse().map(x=>`<p><button class="chip" data-id-thread="${x.id}" data-id-floor="${x.p.f}">#${x.p.f} ${esc(x.t.title)}</button>　${x.p.body.replace(/<[^>]+>/g,'').slice(0,72)}</p>`).join('')||'<p>无可见记录。</p>'}</div>`;$$('[data-id-thread]').forEach(x=>x.onclick=()=>openThread(x.dataset.idThread,+x.dataset.idFloor))}
 function expandedPostsFor(t,id){return [...t.posts,...state.userPosts.filter(p=>p.thread===id),...state.aiReplies.filter(p=>p.thread===id)]}
 function renderArchive(){navPush('archive');activeNav('archive');setAddress('archive/index.html');const events=[['06/21','眼罩秘密悬赏楼发布，500善起步。','identity',1],['07/20','K佬追加悬赏、厚黑学兴起，BLACKHAND现身。','identity',2912],['07/22','楼宝抵达3000楼，4师与疯K完成分家。','identity',3000],['07/24','兼职新人接受AI支教；矿石楼转为仅注册可见。','job',1],['07/26','第一届全民追踪大赛直播开始。','live',41],['07/27','比赛无冠军，热吻实锤以主体偷换收场。','live',2810],['07/28','“墙上有个洞好不好”莫名爆火，并在第二天被灵异主播认领成鬼屋选题。','wall',1],['07/29','灵异楼贴出户型图；琴叶认出“鬼屋”其实是樱遥的公寓。','wall',1799]];app.innerHTML=`<div class="home-head"><h1>▤ 事件归档</h1><p>按照论坛时间而非现实时间整理。</p></div><div class="timeline">${events.map(e=>`<div class="timeline-item"><b>${e[0]}</b><p>${e[1]}</p><button class="chip" data-archive-thread="${e[2]}" data-archive-floor="${e[3]}">进入现场</button></div>`).join('')}</div>`;$$('[data-archive-thread]').forEach(x=>x.onclick=()=>openThread(x.dataset.archiveThread,+x.dataset.archiveFloor))}
-function showSecretOnline(){let old=$('.secret-online');if(old)old.remove();const n=document.createElement('div');n.className='secret-online';n.textContent='BLACKHAND 已上线。';document.body.append(n);setTimeout(()=>n.remove(),2800)}
+function showSecretOnline(){let old=$('.secret-online');if(old)old.remove();const n=document.createElement('div');n.className='secret-online';n.setAttribute('role','status');const icon=document.createElement('img');icon.src='assets/ui/bh.png';icon.alt='';icon.setAttribute('aria-hidden','true');const text=document.createElement('span');text.textContent='BLACKHAND 已上线。';n.append(icon,text);document.body.append(n);setTimeout(()=>n.remove(),2800)}
 function renderMail(){navPush('mail');state.mailRead=true;activeNav('mail');setAddress('mypage/mail.html');app.innerHTML=`<div class="home-head"><h1>📬 您的信箱</h1><p>共 3 封站内信 · 1 封曾未读</p></div><div class="mail-card"><b>匿名善人</b><br><small>07/24 20:16</small><hr><p>您好，想操您。</p></div><div class="mail-card"><b>💓 心神</b><br><small>07/24 20:49</small><hr><p>兼职的事，可以谈。不要在公开楼里继续贴个人信息。</p></div><div class="mail-card"><b>系统通知</b><br><small>07/27 10:03</small><hr><p>您踩中彩蛋，获得328善。善币已入账。</p></div>`;updateUI()}
 function renderProfile(){navPush('profile');activeNav('profile');setAddress('mypage/index.html');app.innerHTML=`<div class="home-head"><h1>👤 MY PAGE / 陆党</h1><p>匿名并不等于不可追踪，请善用VPN与自知之明。</p></div><div class="profile-card"><h2>善人さん</h2><div class="profile-grid"><div class="profile-stat">余额<br><b>🐟 ${fmt(state.coins)}</b></div><div class="profile-stat">本地回复<br><b>${state.userPosts.length}</b></div><div class="profile-stat">管理员操作<br><b>${state.logs.length}</b></div></div></div><div class="panel"><h3>发帖记录</h3>${state.userPosts.length?state.userPosts.map(x=>`<p><button class="chip" data-open-user="${x.thread}">#${x.f} ${esc(threads[x.thread].title)}</button></p>`).join(''):'<p>尚无本地发帖记录。</p>'}</div>${state.admin?adminConsole():''}`;$$('[data-open-user]').forEach(x=>x.onclick=()=>openThread(x.dataset.openUser));bindAdminConsole()}
 
