@@ -8,7 +8,7 @@
   <meta name="m-town-build" content="netlify-static-v7-blackhand-icon">
   <title>日行一善 · M-TOWN 黑市论坛</title>
   <link rel="icon" href="assets/ui/logo.png">
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css?v=4.12">
 </head>
 <body>
   <div class="scanlines" aria-hidden="true"></div>
@@ -55,9 +55,11 @@
         <div class="side-item coin-display land-only">🐟<br><span id="coinCount">99999</span></div>
         <button class="side-item pixel-btn admin-switch land-only" id="adminToggle">BLACK<br>HAND</button>
         <button class="side-item pixel-btn text-link admin-only" id="adminBackendBtn">后台</button>
+        <button class="side-item pixel-btn text-link reset-data-btn" id="resetDataBtn" title="清除本地记录并恢复初始状态">重置</button>
       </aside>
 
       <main class="content-shell">
+        <button class="context-back" id="contextBack" type="button" aria-label="返回上一页" hidden><span aria-hidden="true">←</span> 返回上一页</button>
         <div class="ticker"><span id="tickerText">◆ M町匿名互助论坛 ◆ 严禁开盒 ◆ 违规者由土皇帝 BLACKHAND 亲自取缔 ◆</span></div>
         <button class="global-ad-banner" id="globalAdBanner" aria-label="查看暑假营销包宣传">
           <img src="assets/ui/summer-banner.gif" alt="暑假营销包 Banner">
@@ -82,6 +84,6 @@
   </div>
   <div class="toast-stack" id="toastStack" aria-live="polite"></div>
 
-  <script src="script.js?v=4.11"></script>
+  <script src="script.js?v=4.12"></script>
 </body>
 </html>
